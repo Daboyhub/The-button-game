@@ -124,8 +124,9 @@
         };
 
 
-        // === The List of Random Content Events (Now with more variety!) ===
+        // === The List of Random Content Events (Now with EVEN MORE variety!) ===
         const contentEvents = [
+            // Category 1: Funny Quotes/Meme Text
             {
                 name: "Random Funny Quote",
                 action: () => {
@@ -142,6 +143,7 @@
                     randomOutput.innerHTML = `<p class="text-content text-2xl italic font-serif text-gray-800">"${quote}"</p>`;
                 }
             },
+            // Category 2: Placeholder Images
             {
                 name: "Meme Placeholder Photo",
                 action: () => {
@@ -152,11 +154,11 @@
                         { w: 350, h: 250, text: "Error 404: Funny Not Found" }
                     ];
                     const item = placeholders[Math.floor(Math.random() * placeholders.length)];
-                    // Using a placeholder image URL
                     const imageUrl = `https://placehold.co/${item.w}x${item.h}/1e40a0/ffffff?text=${item.text.replace(/ /g, '+')}`;
                     randomOutput.innerHTML = `<img src="${imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/300x300/ff0000/ffffff?text=Image+Load+Error'" alt="Funny Placeholder" title="${item.text}">`;
                 }
             },
+            // Category 3: ASCII Art
             {
                 name: "ASCII Art Surprise",
                 action: () => {
@@ -191,7 +193,7 @@
                     randomOutput.style.backgroundColor = '#f3e8ff'; // light purple
                 }
             },
-            // NEW: Fun Fact
+            // Category 4: Fun Fact
             {
                 name: "Unexpected Fun Fact",
                 action: () => {
@@ -208,7 +210,7 @@
                     randomOutput.style.backgroundColor = '#ccfbf1'; // light teal
                 }
             },
-            // NEW: Wholesome Encouragement
+            // Category 5: Wholesome Encouragement
             {
                 name: "Wholesome Encouragement",
                 action: () => {
@@ -224,7 +226,7 @@
                     randomOutput.style.backgroundColor = '#fce7f6'; // light pink
                 }
             },
-            // NEW: Simple Joke/Riddle with Hidden Answer
+            // Category 6: Simple Joke/Riddle
             {
                 name: "Simple Joke/Riddle",
                 action: () => {
@@ -244,11 +246,53 @@
                     `;
                     randomOutput.style.backgroundColor = '#dbeafe'; // light blue
                 }
+            },
+            // NEW CATEGORY 7: Pirate Talk
+            {
+                name: "Pirate Talk",
+                action: () => {
+                    const phrases = [
+                        "Ahoy, matey! Shiver me timbers!",
+                        "Where be the rum, ye landlubber?",
+                        "Aarrr! That's a fine click ye got there.",
+                        "Avast ye, this button holds the kraken's gold!",
+                    ];
+                    const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+                    randomOutput.innerHTML = `<div class="text-content text-2xl font-extrabold text-amber-700">🏴‍☠️ Pirate Mode:</div><p class="text-xl italic text-amber-600">${phrase}</p>`;
+                    randomOutput.style.backgroundColor = '#fef3c7'; // light amber
+                }
+            },
+            // NEW CATEGORY 8: Programming Humor
+            {
+                name: "Programming Humor",
+                action: () => {
+                    const jokes = [
+                        "Why do programmers prefer dark mode? Because light attracts bugs!",
+                        "There are 10 types of people in the world: those who understand binary, and those who don't.",
+                        "My code doesn't work. I don't know why. My code works. I don't know why.",
+                        "Debugging: Removing the needles from the haystack, one by one.",
+                    ];
+                    const joke = jokes[Math.floor(Math.random() * jokes.length)];
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-mono text-red-700">🐛 Error Message:</div><p class="text-base text-red-600">${joke}</p>`;
+                    randomOutput.style.backgroundColor = '#fee2e2'; // light red
+                }
+            },
+            // NEW CATEGORY 9: Random Emojis
+            {
+                name: "Random Emojis",
+                action: () => {
+                    const emojis = ["🚀", "🍕", "🦄", "👽", "👾", "✨", "🔥", "🌈", "👑", "🌮", "🗿", "💀", "🧐"];
+                    let emojiString = '';
+                    for (let i = 0; i < 5; i++) {
+                        emojiString += emojis[Math.floor(Math.random() * emojis.length)];
+                    }
+                    randomOutput.innerHTML = `<div class="text-content text-5xl">${emojiString}</div>`;
+                    randomOutput.style.backgroundColor = '#e0f2f1'; // light cyan
+                }
             }
         ];
 
-        // === The List of Random Visual Events ===
-        // These events only change the button or background style.
+        // === The List of Random Visual Events (Unchanged) ===
         const visualEvents = [
             {
                 name: "Button Color Shift",
