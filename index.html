@@ -3,19 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Everything Button - Complete Chaos</title>
+    <title>The Everything Button - Maximum Chaos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Tone.js for sound effects -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Cutive+Mono&family=Handjet:wght@400&display=swap');
+
+        /* Default Font and CSS Variables for Font Swap */
+        :root {
+            --main-font: 'Inter', sans-serif;
+        }
+        .font-inter { --main-font: 'Inter', sans-serif; }
+        .font-comic { --main-font: 'Comic Neue', cursive; }
+        .font-mono-special { --main-font: 'Cutive Mono', monospace; }
+        .font-handjet { --main-font: 'Handjet', cursive; }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--main-font);
             background-color: #f0f4f8;
             transition: background-color 0.5s ease, filter 0.5s ease;
-            position: relative; /* Needed for fixed/absolute elements */
-            overflow: hidden; /* Prevent scrollbars from chaos */
+            position: relative; 
+            overflow: hidden; 
         }
 
         /* Custom Styles for the Button */
@@ -48,18 +58,6 @@
             overflow: hidden;
             background-color: #fef9e7; 
         }
-        #randomOutput img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            animation: bounceIn 0.5s ease-out;
-        }
-        #randomOutput .text-content {
-            animation: bounceIn 0.5s ease-out;
-            padding: 1rem;
-        }
-        /* Specific styling for the joke/riddle answer */
         #randomOutput .text-answer {
             color: transparent; 
             transition: all 0.3s ease-in-out;
@@ -69,7 +67,7 @@
             color: #0c4a6e; 
             text-shadow: 0 0 5px rgba(0,0,0,0.1);
         }
-        /* Styling for the annoying follower element */
+        
         .follower-box {
             position: fixed;
             width: 50px;
@@ -80,23 +78,26 @@
             justify-content: center;
             font-size: 1.5rem;
             opacity: 0.9;
-            pointer-events: none; /* Ignore mouse clicks */
+            pointer-events: none; 
             z-index: 1000;
             transition: opacity 0.5s;
         }
-
-        @keyframes bounceIn {
-            0% { opacity: 0; transform: scale(0.8); }
-            60% { transform: scale(1.05); }
-            100% { opacity: 1; transform: scale(1); }
+        /* Canvas Styling */
+        .ephemeral-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            opacity: 1;
+            transition: opacity 1s ease-out;
         }
 
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-4 font-inter">
 
-    <div class="w-full max-w-lg bg-white rounded-3xl p-6 md:p-10 shadow-2xl text-center">
-        <h1 class="text-4xl font-extrabold mb-4 text-gray-800">The Everything Button</h1>
+    <div class="w-full max-w-lg bg-white rounded-3xl p-6 md:p-10 shadow-2xl text-center z-50">
+        <h1 id="mainTitle" class="text-4xl font-extrabold mb-4 text-gray-800">The Everything Button</h1>
         <p class="text-gray-600 mb-8">Press it. Now.</p>
 
         <!-- The Main Button -->
@@ -113,20 +114,17 @@
     <script>
         // === Tone.js Setup ===
         let isAudioReady = false;
-        // Basic synths for sound effects
         const synth = new Tone.Synth().toDestination();
         const noise = new Tone.NoiseSynth({
             noise: { type: "white" },
             envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 }
         }).toDestination();
         
-        // This function attempts to start the audio context on user interaction (the button click)
         const startAudioContext = async () => {
             if (!isAudioReady) {
                 try {
                     await Tone.start();
                     isAudioReady = true;
-                    console.log("Audio Context Started");
                 } catch (e) {
                     console.error("Could not start audio context:", e);
                 }
@@ -136,25 +134,31 @@
         // === Core Variables ===
         const button = document.getElementById('chaosButton');
         const body = document.body;
+        const mainTitle = document.getElementById('mainTitle');
         const randomOutput = document.getElementById('randomOutput');
+        const defaultButtonText = 'PRESS THE CHAOS BUTTON';
         
-        button.textContent = 'PRESS THE CHAOS BUTTON';
-        button.style.fontSize = '2rem';
-        button.style.backgroundColor = '#4f46e5'; 
+        button.textContent = defaultButtonText;
 
         // Function to generate a random HEX color
         const getRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 
         // Function to reset visual elements after a delay
         const resetVisuals = () => {
-            // Remove all dynamic classes
-            body.classList.remove('slow-pulse');
+            // Remove all dynamic classes and filters
+            body.classList.remove('slow-pulse', 'font-comic', 'font-mono-special', 'font-handjet');
+            body.classList.add('font-inter'); // Reset to default font
             button.classList.remove('fast-spin');
-            // Reset button styles not covered by classes
+            
+            // Reset button and title text (to undo text reversal)
+            button.textContent = defaultButtonText;
+            mainTitle.textContent = 'The Everything Button';
+
+            // Reset styles
             button.style.transform = 'scale(1)';
             button.style.fontSize = '2rem';
             button.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
-            body.style.filter = 'none'; // Reset body filter
+            body.style.filter = 'none'; 
         };
         
         // Function to clear existing content
@@ -165,76 +169,43 @@
         };
 
         // --- CONTENT/INTERACTIVE EVENTS (Run one per click) ---
-        // This list includes all previous content categories plus the new interactive elements.
         const contentEvents = [
-            // 1. Random Funny Quote
+            // Existing Content Events (1-9)
             {
                 name: "Random Funny Quote",
                 action: () => {
-                    const quotes = [
-                        "I used to think I was indecisive, but now I'm not so sure.",
-                        "If you are what you eat, then I am mostly pizza and existential dread.",
-                        "The mitochondria is the powerhouse of the cell. (Mandatory meme content.)",
-                        "I'm not clumsy. The floor just hates me, the walls are bullies, and the furniture keeps moving.",
-                        "Just when I found the meaning of life, they changed it."
-                    ];
+                    const quotes = ["I used to think I was indecisive, but now I'm not so sure.", "If you are what you eat, then I am mostly pizza and existential dread.", "The mitochondria is the powerhouse of the cell. (Mandatory meme content.)"];
                     const quote = quotes[Math.floor(Math.random() * quotes.length)];
                     randomOutput.innerHTML = `<p class="text-content text-2xl italic font-serif text-gray-800">"${quote}"</p>`;
                 }
             },
-            // 2. Meme Placeholder Photo
             {
                 name: "Meme Placeholder Photo",
                 action: () => {
-                    const placeholders = [
-                        { w: 300, h: 300, text: "Wait, That's Illegal" },
-                        { w: 400, h: 200, text: "Unexpected Item in Bagging Area" },
-                        { w: 250, h: 350, text: "Loading... Greatness" },
-                        { w: 350, h: 250, text: "Error 404: Funny Not Found" }
-                    ];
+                    const placeholders = [{ w: 300, h: 300, text: "Wait, That's Illegal" }, { w: 400, h: 200, text: "Unexpected Item in Bagging Area" }];
                     const item = placeholders[Math.floor(Math.random() * placeholders.length)];
                     const imageUrl = `https://placehold.co/${item.w}x${item.h}/1e40a0/ffffff?text=${item.text.replace(/ /g, '+')}`;
                     randomOutput.innerHTML = `<img src="${imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/300x300/ff0000/ffffff?text=Image+Load+Error'" alt="Funny Placeholder" title="${item.text}">`;
                 }
             },
-            // 3. ASCII Art Surprise
             {
                 name: "ASCII Art Surprise",
                 action: () => {
-                    const asciiArt = [
-                        `<pre class="font-mono text-lg text-green-700">
- ( •_•)
- ( ง )ง
- /  \
-( •_•)
-( ง )ง
-/  \</pre>`,
-                        `<pre class="font-mono text-base text-purple-700">
- _/|
-/  |
-|  |
-|  |
-|  |
-|  |
-|  |
-</pre>`,
-                    ];
+                    const asciiArt = [`<pre class="font-mono text-lg text-green-700"> ( •_•)\n ( ง )ง\n /  \\</pre>`, `<pre class="font-mono text-base text-purple-700"> _/|\n/  |\n|  |\n|  |\n|_/\n</pre>`];
                     const art = asciiArt[Math.floor(Math.random() * asciiArt.length)];
                     randomOutput.innerHTML = `<div class="text-center">${art}</div>`;
                     randomOutput.style.backgroundColor = '#f3e8ff'; 
                 }
             },
-            // 4. Unexpected Fun Fact
             {
                 name: "Unexpected Fun Fact",
                 action: () => {
-                    const facts = ["A group of flamingos is called a 'flamboyance.'", "Octopuses have three hearts.", "Honey never spoils.", "A day on Venus is longer than a year on Venus."];
+                    const facts = ["A group of flamingos is called a 'flamboyance.'", "Octopuses have three hearts.", "Honey never spoils."];
                     const fact = facts[Math.floor(Math.random() * facts.length)];
                     randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-teal-700">🤯 Fun Fact:</div><p class="text-base text-teal-600">${fact}</p>`;
                     randomOutput.style.backgroundColor = '#ccfbf1'; 
                 }
             },
-            // 5. Wholesome Encouragement
             {
                 name: "Wholesome Encouragement",
                 action: () => {
@@ -244,7 +215,6 @@
                     randomOutput.style.backgroundColor = '#fce7f6'; 
                 }
             },
-            // 6. Simple Joke/Riddle
             {
                 name: "Simple Joke/Riddle",
                 action: () => {
@@ -254,7 +224,6 @@
                     randomOutput.style.backgroundColor = '#dbeafe'; 
                 }
             },
-            // 7. Pirate Talk
             {
                 name: "Pirate Talk",
                 action: () => {
@@ -264,7 +233,6 @@
                     randomOutput.style.backgroundColor = '#fef3c7'; 
                 }
             },
-            // 8. Programming Humor
             {
                 name: "Programming Humor",
                 action: () => {
@@ -274,7 +242,6 @@
                     randomOutput.style.backgroundColor = '#fee2e2'; 
                 }
             },
-            // 9. Random Emojis
             {
                 name: "Random Emojis",
                 action: () => {
@@ -287,24 +254,20 @@
                     randomOutput.style.backgroundColor = '#e0f2f1'; 
                 }
             },
-            // 10. NEW INTERACTIVE EVENT: Annoying Follower
+            // Interactive Events (10-11)
             {
                 name: "Annoying Follower",
                 action: () => {
                     randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-gray-700">👀 Watch out! Something is following you...</div>`;
-                    randomOutput.style.backgroundColor = '#ffe4e6'; 
-                    
                     const follower = document.createElement('div');
-                    const followerColor = getRandomColor();
                     follower.className = 'follower-box shadow-xl';
-                    follower.style.backgroundColor = followerColor;
+                    follower.style.backgroundColor = getRandomColor();
                     follower.style.left = `${Math.random() * 90}vw`;
                     follower.style.top = `${Math.random() * 90}vh`;
                     follower.innerHTML = '🚨';
                     document.body.appendChild(follower);
 
                     const moveFollower = (e) => {
-                        // Slowly move the follower towards the cursor position (smoothed motion)
                         const speed = 0.05; 
                         const rect = follower.getBoundingClientRect();
                         const fX = rect.left;
@@ -319,7 +282,6 @@
 
                     document.addEventListener('mousemove', moveFollower);
 
-                    // Clean up after 3 seconds
                     setTimeout(() => {
                         follower.style.opacity = '0';
                         document.removeEventListener('mousemove', moveFollower);
@@ -327,114 +289,165 @@
                     }, 3000);
                 }
             },
-            // 11. NEW INTERACTIVE EVENT: Hidden Message Pop-up
             {
                 name: "Hidden Message Pop-up",
                 action: () => {
-                    const messages = ["You found me!", "The cake is a lie.", "Hello from the corner!", "Don't click me!", "Have you checked the fridge?"];
+                    const messages = ["You found me!", "The cake is a lie.", "Hello from the corner!", "Don't click me!"];
                     const msg = messages[Math.floor(Math.random() * messages.length)];
                     randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-gray-700">A mysterious box has appeared!</div>`;
 
                     const popup = document.createElement('div');
                     popup.className = 'absolute p-2 bg-yellow-400 text-black text-xs font-bold rounded-lg shadow-xl cursor-pointer hover:scale-105 transition';
-                    popup.style.left = `${Math.random() * 80 + 10}vw`; // Random horizontal position
-                    popup.style.top = `${Math.random() * 80 + 10}vh`; // Random vertical position
+                    popup.style.left = `${Math.random() * 80 + 10}vw`; 
+                    popup.style.top = `${Math.random() * 80 + 10}vh`; 
                     popup.style.zIndex = '1000';
                     popup.innerHTML = `[Click to dismiss: ${msg}]`;
                     
-                    popup.onclick = () => {
-                        popup.remove();
-                    };
+                    popup.onclick = () => { popup.remove(); };
                     document.body.appendChild(popup);
 
-                    // Clean up after 5 seconds if not clicked
                     setTimeout(() => popup.remove(), 5000);
+                }
+            },
+            // NEW CONTENT EVENT: Ephemeral Canvas Art (12)
+            {
+                name: "Ephemeral Canvas Art",
+                action: () => {
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-indigo-700">🖼️ Abstract Art Generated! (Look around)</div>`;
+                    
+                    const canvas = document.createElement('canvas');
+                    canvas.className = 'ephemeral-canvas';
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                    document.body.appendChild(canvas);
+                    
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Draw random shape
+                    ctx.fillStyle = getRandomColor();
+                    ctx.globalAlpha = 0.5; // Make it semi-transparent
+
+                    const centerX = Math.random() * canvas.width;
+                    const centerY = Math.random() * canvas.height;
+                    const size = Math.random() * 100 + 50;
+
+                    if (Math.random() > 0.5) {
+                        // Draw a circle
+                        ctx.beginPath();
+                        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        // Draw a rotating square
+                        ctx.translate(centerX, centerY);
+                        ctx.rotate(Math.random() * Math.PI);
+                        ctx.fillRect(-size / 2, -size / 2, size, size);
+                    }
+
+                    // Fade and remove after 1.5 seconds
+                    setTimeout(() => {
+                        canvas.style.opacity = '0';
+                        setTimeout(() => canvas.remove(), 1000);
+                    }, 1500);
                 }
             }
         ];
 
         // --- VISUAL/AUDIO EVENTS (Run 1-3 per click) ---
         const visualEvents = [
-            // Existing Visual Events
+            // Existing Visual Events (1-4)
             { name: "Button Color Shift", action: () => { const color = getRandomColor(); button.style.backgroundColor = color; button.style.color = 'white'; } },
             { name: "Brief Background Flash", action: () => { const color = getRandomColor(); body.style.backgroundColor = color; setTimeout(() => { body.style.backgroundColor = '#f0f4f8'; }, 300); } },
             { name: "Text Size Jolt", action: () => { const randomSize = Math.floor(Math.random() * 20) + 16; button.style.fontSize = `${randomSize}px`; } },
             { name: "Quick Spin and Rebound", action: () => { button.classList.add('fast-spin'); setTimeout(() => { button.classList.remove('fast-spin'); }, 800); } },
             
-            // NEW VISUAL: Invert Colors
+            // CSS Filter Events (5-6)
             {
                 name: "Invert Colors",
-                action: () => {
-                    body.style.filter = 'invert(100%)';
-                    setTimeout(() => {
-                        body.style.filter = 'none';
-                    }, 400);
-                }
+                action: () => { body.style.filter = 'invert(100%)'; setTimeout(() => { body.style.filter = 'none'; }, 400); }
             },
-            // NEW VISUAL: Random Blur
             {
                 name: "Random Blur",
+                action: () => { const blurAmount = Math.floor(Math.random() * 5) + 2; body.style.filter = `blur(${blurAmount}px)`; setTimeout(() => { body.style.filter = 'none'; }, 500); }
+            },
+            
+            // Audio Events (7-8)
+            { name: "Sci-Fi Zap Sound", action: () => { if (isAudioReady) { synth.triggerAttackRelease("C5", "8n"); } } },
+            { name: "Low Riser Sound", action: () => { if (isAudioReady) { noise.triggerAttackRelease("4n", "+0.1"); } } },
+
+            // NEW VISUAL EVENT: Text Reversal (9)
+            {
+                name: "Reverse Text",
                 action: () => {
-                    const blurAmount = Math.floor(Math.random() * 5) + 2; 
-                    body.style.filter = `blur(${blurAmount}px)`;
+                    // Function to reverse text
+                    const reverseString = (str) => str.split('').reverse().join('');
+                    
+                    button.textContent = reverseString(defaultButtonText);
+                    mainTitle.textContent = reverseString(mainTitle.textContent);
+
                     setTimeout(() => {
-                        body.style.filter = 'none';
+                        button.textContent = defaultButtonText;
+                        mainTitle.textContent = 'The Everything Button';
                     }, 500);
                 }
             },
-            // NEW AUDIO: Sci-Fi Zap (requires audio context to be started)
+            // NEW VISUAL EVENT: Font Swap (10)
             {
-                name: "Sci-Fi Zap Sound",
+                name: "Font Swap",
                 action: () => {
-                    if (isAudioReady) {
-                        synth.triggerAttackRelease("C5", "8n");
-                    }
+                    const fonts = ['font-comic', 'font-mono-special', 'font-handjet'];
+                    const randomFont = fonts[Math.floor(Math.random() * fonts.length)];
+                    
+                    body.classList.remove('font-inter', 'font-comic', 'font-mono-special', 'font-handjet');
+                    body.classList.add(randomFont);
+
+                    setTimeout(() => {
+                        body.classList.remove(randomFont);
+                        body.classList.add('font-inter');
+                    }, 1000);
                 }
             },
-            // NEW AUDIO: Low Riser (requires audio context to be started)
+            // NEW VISUAL EVENT: Quick Bounce (11)
             {
-                name: "Low Riser Sound",
+                name: "Quick Bounce",
                 action: () => {
-                    if (isAudioReady) {
-                        noise.triggerAttackRelease("4n", "+0.1"); 
-                    }
+                    button.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        button.style.transform = 'translateY(0)';
+                    }, 100);
                 }
             }
         ];
 
         // === Event Listener ===
         button.addEventListener('click', () => {
-            // 1. Start Audio Context (must be on user interaction)
             startAudioContext(); 
             
-            // Check for temporary lock
             if (button.disabled) return; 
 
-            // 2. Reset visual elements
+            // 1. Reset temporary visual elements
             resetVisuals();
             
-            // 3. Clear previous random content
+            // 2. Clear previous random content
             clearContent();
 
-            // 4. Determine how many visual events will fire (1 to 3 events)
+            // 3. Determine how many visual events will fire (1 to 3 events)
             const numVisualEvents = Math.floor(Math.random() * 3) + 1; 
             
-            // 5. Run the visual/audio chaos
+            // 4. Run the visual/audio chaos
             for (let i = 0; i < numVisualEvents; i++) {
                 const randomIndex = Math.floor(Math.random() * visualEvents.length);
                 visualEvents[randomIndex].action(); 
             }
 
-            // 6. Always run ONE content/interactive event 
+            // 5. Always run ONE content/interactive event 
             const contentIndex = Math.floor(Math.random() * contentEvents.length);
             contentEvents[contentIndex].action();
             
-            // 7. Add a small temporary lock
+            // 6. Add a small temporary lock
             button.disabled = true;
             setTimeout(() => {
                 button.disabled = false;
-            }, 500); // 0.5 second cooldown
-
+            }, 500); 
         });
     </script>
 </body>
