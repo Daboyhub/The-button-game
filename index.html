@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Everything Button</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Custom Styles for the Button */
+        #chaosButton {
+            transition: all 0.15s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            font-size: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #chaosButton:active {
+            transform: scale(0.95);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Dynamic Classes for the Game */
+        .fast-spin { animation: spin 0.5s infinite linear; }
+        .slow-pulse { animation: pulse 2s infinite ease-in-out; }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* Style for the random content output */
+        #randomOutput {
+            min-height: 150px; /* Ensure space is reserved */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #fef9e7; /* Light yellow */
+        }
+        #randomOutput img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            animation: bounceIn 0.5s ease-out;
+        }
+        #randomOutput .text-content {
+            animation: bounceIn 0.5s ease-out;
+            padding: 1rem;
+        }
+        /* Specific styling for the joke/riddle answer */
+        #randomOutput .text-answer {
+            color: transparent; /* Makes the text invisible */
+            transition: all 0.3s ease-in-out;
+            cursor: help; /* Suggests interaction */
+        }
+        #randomOutput .text-answer:hover {
+            color: #0c4a6e; /* Dark blue on hover to reveal answer */
+            text-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            60% { transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-lg bg-white rounded-3xl p-6 md:p-10 shadow-2xl text-center">
+        <h1 class="text-4xl font-extrabold mb-4 text-gray-800">The Everything Button</h1>
+        <p class="text-gray-600 mb-8">Press it. Now.</p>
+
+        <!-- The Main Button -->
+        <button id="chaosButton" class="w-full py-6 rounded-2xl text-white font-bold bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/50">
+            PRESS THE CHAOS BUTTON
+        </button>
+
+        <!-- Dynamic Random Content Output Area -->
+        <div id="randomOutput" class="mt-8 p-4 border border-indigo-200 rounded-xl shadow-inner transition duration-500 ease-in-out">
+            <p class="text-xl text-gray-500">Awaiting input for maximum chaos...</p>
+        </div>
+    </div>
+
+    <script>
+        // === Core Variables ===
+        const button = document.getElementById('chaosButton');
+        const body = document.body;
+        const randomOutput = document.getElementById('randomOutput');
+        
+        // Ensure initial button state is set
+        button.textContent = 'PRESS THE CHAOS BUTTON';
+        button.style.fontSize = '2rem';
+        button.style.backgroundColor = '#4f46e5'; // indigo-600
+
+        // Function to generate a random HEX color
+        const getRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+
+        // Function to reset visual elements after a delay
+        const resetVisuals = () => {
+            // Remove all dynamic classes
+            body.classList.remove('slow-pulse');
+            button.classList.remove('fast-spin');
+            // Reset button styles not covered by classes
+            button.style.transform = 'scale(1)';
+            button.style.fontSize = '2rem';
+            button.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
+        };
+        
+        // Function to clear existing content
+        const clearContent = () => {
+            randomOutput.innerHTML = '';
+            randomOutput.className = 'mt-8 p-4 border border-indigo-200 rounded-xl shadow-inner transition duration-500 ease-in-out';
+            randomOutput.style.backgroundColor = '#fef9e7';
+        };
+
+
+        // === The List of Random Content Events (Now with more variety!) ===
+        const contentEvents = [
+            {
+                name: "Random Funny Quote",
+                action: () => {
+                    const quotes = [
+                        "I used to think I was indecisive, but now I'm not so sure.",
+                        "If you are what you eat, then I am mostly pizza and existential dread.",
+                        "My life has a hard drive with 1TB of data, 999GB is cat videos.",
+                        "I told my computer I needed a break, and now it won't stop playing the 'Macarena'.",
+                        "The mitochondria is the powerhouse of the cell. (Mandatory meme content.)",
+                        "I'm not clumsy. The floor just hates me, the walls are bullies, and the furniture keeps moving.",
+                        "Just when I found the meaning of life, they changed it."
+                    ];
+                    const quote = quotes[Math.floor(Math.random() * quotes.length)];
+                    randomOutput.innerHTML = `<p class="text-content text-2xl italic font-serif text-gray-800">"${quote}"</p>`;
+                }
+            },
+            {
+                name: "Meme Placeholder Photo",
+                action: () => {
+                    const placeholders = [
+                        { w: 300, h: 300, text: "Wait, That's Illegal" },
+                        { w: 400, h: 200, text: "Unexpected Item in Bagging Area" },
+                        { w: 250, h: 350, text: "Loading... Greatness" },
+                        { w: 350, h: 250, text: "Error 404: Funny Not Found" }
+                    ];
+                    const item = placeholders[Math.floor(Math.random() * placeholders.length)];
+                    // Using a placeholder image URL
+                    const imageUrl = `https://placehold.co/${item.w}x${item.h}/1e40a0/ffffff?text=${item.text.replace(/ /g, '+')}`;
+                    randomOutput.innerHTML = `<img src="${imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/300x300/ff0000/ffffff?text=Image+Load+Error'" alt="Funny Placeholder" title="${item.text}">`;
+                }
+            },
+            {
+                name: "ASCII Art Surprise",
+                action: () => {
+                    const asciiArt = [
+                        `<pre class="font-mono text-lg text-green-700">
+ ( •_•)
+ ( ง )ง
+ /  \
+( •_•)
+( ง )ง
+/  \</pre>`,
+                        `<pre class="font-mono text-base text-purple-700">
+ _/|
+/  |
+|  |
+|  |
+|  |
+|  |
+|  |
+|  |
+|  |
+|  |
+|  |
+|  |
+|  |
+|  |
+|_/
+</pre>`,
+                    ];
+                    const art = asciiArt[Math.floor(Math.random() * asciiArt.length)];
+                    randomOutput.innerHTML = `<div class="text-center">${art}</div>`;
+                    randomOutput.style.backgroundColor = '#f3e8ff'; // light purple
+                }
+            },
+            // NEW: Fun Fact
+            {
+                name: "Unexpected Fun Fact",
+                action: () => {
+                    const facts = [
+                        "A group of flamingos is called a 'flamboyance.'",
+                        "The shortest war in history lasted only 38 to 45 minutes (between Britain and Zanzibar).",
+                        "Octopuses have three hearts.",
+                        "The person who invented the Frisbee was turned into a Frisbee after he died.",
+                        "Honey never spoils. Archaeologists have found edible honey in ancient Egyptian tombs.",
+                        "A day on Venus is longer than a year on Venus."
+                    ];
+                    const fact = facts[Math.floor(Math.random() * facts.length)];
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-teal-700">🤯 Fun Fact:</div><p class="text-base text-teal-600">${fact}</p>`;
+                    randomOutput.style.backgroundColor = '#ccfbf1'; // light teal
+                }
+            },
+            // NEW: Wholesome Encouragement
+            {
+                name: "Wholesome Encouragement",
+                action: () => {
+                    const messages = [
+                        "You are doing great! Keep up the awesome work!",
+                        "Someone is proud of you today (it's me!).",
+                        "Remember to drink water and take a quick stretch break!",
+                        "Your creativity is shining brighter than a supernova!",
+                        "Even on a chaotic day, you rock the universe. ✨"
+                    ];
+                    const message = messages[Math.floor(Math.random() * messages.length)];
+                    randomOutput.innerHTML = `<div class="text-content text-2xl font-extrabold text-pink-600">💖 Positive Vibes!</div><p class="text-xl text-pink-500">${message}</p>`;
+                    randomOutput.style.backgroundColor = '#fce7f6'; // light pink
+                }
+            },
+            // NEW: Simple Joke/Riddle with Hidden Answer
+            {
+                name: "Simple Joke/Riddle",
+                action: () => {
+                    const jokes = [
+                        { q: "Why did the scarecrow win an award?", a: "Because he was outstanding in his field!" },
+                        { q: "What do you call a fake noodle?", a: "An impasta." },
+                        { q: "What do you call a bear with no teeth?", a: "A gummy bear!" },
+                        { q: "Why don't scientists trust atoms?", a: "Because they make up everything!" }
+                    ];
+                    const joke = jokes[Math.floor(Math.random() * jokes.length)];
+                    randomOutput.innerHTML = `
+                        <div class="text-content text-center">
+                            <p class="text-xl font-medium text-blue-700 mb-2">❓ ${joke.q}</p>
+                            <p class="text-sm italic text-blue-500 mt-2">(Hover over the text below for the answer!)</p>
+                            <p class="text-answer font-bold text-lg">ANSWER: ${joke.a}</p>
+                        </div>
+                    `;
+                    randomOutput.style.backgroundColor = '#dbeafe'; // light blue
+                }
+            }
+        ];
+
+        // === The List of Random Visual Events ===
+        // These events only change the button or background style.
+        const visualEvents = [
+            {
+                name: "Button Color Shift",
+                action: () => {
+                    const color = getRandomColor();
+                    button.style.backgroundColor = color;
+                    button.style.color = 'white';
+                }
+            },
+            {
+                name: "Brief Background Flash",
+                action: () => {
+                    const color = getRandomColor();
+                    body.style.backgroundColor = color;
+                    setTimeout(() => {
+                        body.style.backgroundColor = '#f0f4f8';
+                    }, 300);
+                }
+            },
+            {
+                name: "Text Size Jolt",
+                action: () => {
+                    const randomSize = Math.floor(Math.random() * 20) + 16;
+                    button.style.fontSize = `${randomSize}px`;
+                }
+            },
+            {
+                name: "Quick Spin and Rebound",
+                action: () => {
+                    button.classList.add('fast-spin');
+                    setTimeout(() => {
+                        button.classList.remove('fast-spin');
+                    }, 800);
+                }
+            },
+            {
+                name: "Shadow Surge",
+                action: () => {
+                    const color = getRandomColor();
+                    button.style.boxShadow = `0 0 50px 15px ${color}`;
+                    setTimeout(() => {
+                        button.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
+                    }, 500);
+                }
+            },
+            {
+                name: "Button Text Swap",
+                action: () => {
+                    const newTexts = ["CHAOS RULEZ", "WHAT DID YOU DO?", "CLICK ME NOW!", "HAVE FUN!", "THE VOID BECKONS"];
+                    button.textContent = newTexts[Math.floor(Math.random() * newTexts.length)];
+                }
+            },
+            {
+                name: "World Pulse",
+                action: () => {
+                    body.classList.add('slow-pulse');
+                    setTimeout(() => {
+                        body.classList.remove('slow-pulse');
+                    }, 3000);
+                }
+            },
+        ];
+
+        // === Event Listener ===
+        button.addEventListener('click', () => {
+            // Check for temporary lock (optional, but good practice)
+            if (button.disabled) return; 
+
+            // 1. Reset visual elements that should only be temporary
+            resetVisuals();
+            
+            // 2. Clear previous random content before starting the new event
+            clearContent();
+
+            // 3. Determine how many visual events will fire (1 to 3 events)
+            const numVisualEvents = Math.floor(Math.random() * 3) + 1; 
+            
+            // 4. Run the visual chaos
+            for (let i = 0; i < numVisualEvents; i++) {
+                const randomIndex = Math.floor(Math.random() * visualEvents.length);
+                visualEvents[randomIndex].action(); 
+            }
+
+            // 5. Always run ONE content event to guarantee a new display
+            const contentIndex = Math.floor(Math.random() * contentEvents.length);
+            contentEvents[contentIndex].action();
+            
+            // 6. Add a small temporary lock to prevent spamming too quickly
+            button.disabled = true;
+            setTimeout(() => {
+                button.disabled = false;
+            }, 500); // 0.5 second cooldown
+
+        });
+    </script>
+</body>
+</html>
