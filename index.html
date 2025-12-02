@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Everything Button - Maximum Chaos</title>
+    <title>De Alles-in-één Chaosknop - Uiteindelijke Versie</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tone.js for sound effects -->
+    <!-- Tone.js voor geluidseffecten -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Cutive+Mono&family=Handjet:wght@400&display=swap');
 
-        /* Default Font and CSS Variables for Font Swap */
+        /* Standaard Lettertype en CSS Variabelen voor Lettertype Wissel */
         :root {
             --main-font: 'Inter', sans-serif;
         }
@@ -23,12 +23,12 @@
         body {
             font-family: var(--main-font);
             background-color: #f0f4f8;
-            transition: background-color 0.5s ease, filter 0.5s ease, transform 0.3s ease; /* Added transform */
+            transition: background-color 0.5s ease, filter 0.5s ease, transform 0.3s ease; 
             position: relative; 
-            overflow: hidden; 
+            overflow-x: hidden; /* Voorkom horizontale scrollbar door tilts */
         }
 
-        /* Custom Styles for the Button */
+        /* Aangepaste Stijlen voor de Knop */
         #chaosButton {
             transition: all 0.15s ease-in-out;
             cursor: pointer;
@@ -42,14 +42,26 @@
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
         }
 
-        /* Dynamic Classes for the Game */
+        /* Dynamische Klassen voor de Game */
         .fast-spin { animation: spin 0.5s infinite linear; }
         .slow-pulse { animation: pulse 2s infinite ease-in-out; }
+        .pulsing-border { animation: pulse-border 1s infinite alternate; }
+        
+        /* NIEUW: Haptische Trilling Animaties */
+        .haptic-vibrate { animation: vibrate 0.1s infinite alternate; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes pulse-border { 0% { box-shadow: 0 0 0 0px var(--border-color, #f59e0b); } 100% { box-shadow: 0 0 10px 10px var(--border-color, #f59e0b); } }
+        @keyframes vibrate { 
+            0% { transform: translate(1px, 1px); } 
+            25% { transform: translate(-1px, 2px); } 
+            50% { transform: translate(2px, -1px); } 
+            75% { transform: translate(-2px, -2px); } 
+            100% { transform: translate(1px, 1px); } 
+        }
 
-        /* Style for the random content output */
+        /* Stijl voor de willekeurige content uitvoer */
         #randomOutput {
             min-height: 150px; 
             display: flex;
@@ -91,114 +103,235 @@
             opacity: 1;
             transition: opacity 1s ease-out;
         }
+        
+        /* Confetti Styling */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 2000;
+            animation: fall 3s ease-in forwards;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* NIEUW: Cursor Trail Styling */
+        .trail {
+            position: fixed;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.8;
+            z-index: 900;
+            transition: opacity 1s, transform 1s;
+        }
 
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 font-inter">
 
-    <div class="w-full max-w-lg bg-white rounded-3xl p-6 md:p-10 shadow-2xl text-center z-50">
-        <h1 id="mainTitle" class="text-4xl font-extrabold mb-4 text-gray-800">The Everything Button</h1>
-        <p class="text-gray-600 mb-8">Press it. Now.</p>
+    <div id="mainContainer" class="w-full max-w-lg bg-white rounded-3xl p-6 md:p-10 shadow-2xl text-center z-50 transition-all">
+        <h1 id="mainTitle" class="text-4xl font-extrabold mb-4 text-gray-800">De Alles-in-één Chaosknop</h1>
+        <p class="text-gray-600 mb-8">Druk er nu op.</p>
 
-        <!-- The Main Button -->
+        <!-- De Hoofdknop -->
         <button id="chaosButton" class="w-full py-6 rounded-2xl text-white font-bold bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/50">
-            PRESS THE CHAOS BUTTON
+            DRUK OP DE CHAOSKNOP
         </button>
 
-        <!-- Dynamic Random Content Output Area -->
+        <!-- Dynamisch Willekeurig Content Uitvoergebied -->
         <div id="randomOutput" class="mt-8 p-4 border border-indigo-200 rounded-xl shadow-inner transition duration-500 ease-in-out">
-            <p class="text-xl text-gray-500">Awaiting input for maximum chaos...</p>
+            <p class="text-xl text-gray-500">Wachten op invoer voor maximale chaos...</p>
         </div>
     </div>
 
     <script>
         // === Tone.js Setup ===
         let isAudioReady = false;
+        // Standaard synths
         const synth = new Tone.Synth().toDestination();
         const noise = new Tone.NoiseSynth({
             noise: { type: "white" },
             envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 }
         }).toDestination();
         
+        // Synths voor gekke geluiden
+        const pluck = new Tone.PluckSynth().toDestination(); 
+        const amSynth = new Tone.AMSynth({ 
+            oscillator: { type: "sine" },
+            envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.5 },
+            modulation: { type: "sawtooth" }
+        }).toDestination();
+        
+        const memSynth = new Tone.MembraneSynth({
+            pitchDecay: 0.005,
+            octaves: 0.8,
+            envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 0.4 },
+        }).toDestination();
+        
+        const monoSynth = new Tone.MonoSynth({
+            envelope: { attack: 0.005, decay: 0.2, sustain: 0.4, release: 0.8 },
+            filterEnvelope: { attack: 0.001, decay: 0.1, sustain: 0.5, release: 0.5, basePath: 500, octaves: 4 },
+        }).toDestination();
+
         const startAudioContext = async () => {
             if (!isAudioReady) {
                 try {
                     await Tone.start();
                     isAudioReady = true;
                 } catch (e) {
-                    console.error("Could not start audio context:", e);
+                    console.error("Kon audiocontext niet starten:", e);
                 }
             }
         };
 
-        // === Core Variables ===
+        // === Kern Variabelen ===
         const button = document.getElementById('chaosButton');
         const body = document.body;
         const mainTitle = document.getElementById('mainTitle');
+        const mainContainer = document.getElementById('mainContainer');
         const randomOutput = document.getElementById('randomOutput');
-        const defaultButtonText = 'PRESS THE CHAOS BUTTON';
+        const defaultButtonText = 'DRUK OP DE CHAOSKNOP';
+        const defaultTitleText = 'De Alles-in-één Chaosknop';
         
         button.textContent = defaultButtonText;
 
-        // Function to generate a random HEX color
+        // Variabele voor Cursor Trail
+        let isCursorTrailActive = false;
+        let cursorTrailCleanup = null;
+
+
+        // Functie om een willekeurige HEX-kleur te genereren
         const getRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 
-        // Function to reset visual elements after a delay
+        // Functie om visuele elementen na een vertraging te resetten
         const resetVisuals = () => {
-            // Remove all dynamic classes and filters
-            body.classList.remove('slow-pulse', 'font-comic', 'font-mono-special', 'font-handjet');
-            body.classList.add('font-inter'); // Reset to default font
-            button.classList.remove('fast-spin');
-            
-            // Reset button and title text (to undo text reversal)
-            button.textContent = defaultButtonText;
-            mainTitle.textContent = 'The Everything Button';
+            // Stop de Cursor Trail als deze actief is
+            if (isCursorTrailActive && cursorTrailCleanup) {
+                cursorTrailCleanup();
+                isCursorTrailActive = false;
+                cursorTrailCleanup = null;
+            }
 
-            // Reset styles
+            // Verwijder alle dynamische klassen en filters
+            body.classList.remove('slow-pulse', 'font-comic', 'font-mono-special', 'font-handjet');
+            body.classList.add('font-inter'); // Reset naar standaard lettertype
+            button.classList.remove('fast-spin');
+            mainContainer.classList.remove('pulsing-border', 'haptic-vibrate'); // Reset Border en Trilling
+            mainContainer.style.removeProperty('--border-color'); 
+            mainTitle.style.textShadow = 'none'; 
+            
+            // Reset knop- en titeltekst 
+            button.textContent = defaultButtonText;
+            mainTitle.textContent = defaultTitleText;
+
+            // Reset stijlen
             button.style.transform = 'scale(1)';
             button.style.fontSize = '2rem';
             button.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
 
-            // NEW RESET FOR CHAOS
+            // Reset voor chaos-effecten
             body.style.filter = 'none'; 
-            body.style.transform = 'none'; // Added for Page Tilt reset
+            body.style.transform = 'none'; 
+            body.style.overflow = 'auto'; 
             
-            // Reset button position (especially after teleport)
+            // Reset knoppositie
             button.style.position = ''; 
             button.style.left = '';
             button.style.top = '';
             button.style.zIndex = '';
         };
         
-        // Function to clear existing content
+        // Functie om bestaande content te wissen
         const clearContent = () => {
             randomOutput.innerHTML = '';
             randomOutput.className = 'mt-8 p-4 border border-indigo-200 rounded-xl shadow-inner transition duration-500 ease-in-out';
             randomOutput.style.backgroundColor = '#fef9e7';
         };
 
-        // --- CONTENT/INTERACTIVE EVENTS (Run one per click) ---
+        // Functie voor Confetti Regen
+        const spawnConfetti = (count = 50) => {
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4'];
+            for (let i = 0; i < count; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                c.style.left = `${Math.random() * 100}vw`;
+                c.style.animationDelay = `${Math.random() * 0.5}s`;
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 3000); 
+            }
+        };
+
+        // Functie voor Cursor Trail
+        const startCursorTrail = (duration = 3000) => {
+            if (isCursorTrailActive) return;
+            isCursorTrailActive = true;
+            randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-green-700">✨ Cursorspoor Geactiveerd! Beweeg de muis!</div>`;
+
+            const createTrailElement = (x, y) => {
+                const trail = document.createElement('div');
+                trail.className = 'trail';
+                trail.style.backgroundColor = getRandomColor();
+                trail.style.left = `${x}px`;
+                trail.style.top = `${y}px`;
+                document.body.appendChild(trail);
+
+                // Fade out and remove
+                setTimeout(() => {
+                    trail.style.opacity = '0';
+                    trail.style.transform = 'scale(0)';
+                    setTimeout(() => trail.remove(), 1000);
+                }, 50);
+            };
+
+            const trailHandler = (e) => {
+                // Spawn een trail-element met een willekeurige kans
+                if (Math.random() < 0.5) {
+                    createTrailElement(e.clientX, e.clientY);
+                }
+            };
+
+            document.addEventListener('mousemove', trailHandler);
+
+            const timeoutId = setTimeout(() => {
+                document.removeEventListener('mousemove', trailHandler);
+                isCursorTrailActive = false;
+            }, duration);
+
+            cursorTrailCleanup = () => {
+                document.removeEventListener('mousemove', trailHandler);
+                clearTimeout(timeoutId);
+            };
+        };
+
+
+        // --- CONTENT/INTERACTIEVE GEBEURTENISSEN (Eén per klik) ---
         const contentEvents = [
-            // Existing Content Events (1-9)
+            // Bestaande Content Gebeurtenissen
             {
-                name: "Random Funny Quote",
+                name: "Willekeurige Grappige Quote",
                 action: () => {
-                    const quotes = ["I used to think I was indecisive, but now I'm not so sure.", "If you are what you eat, then I am mostly pizza and existential dread.", "The mitochondria is the powerhouse of the cell. (Mandatory meme content.)"];
+                    const quotes = ["Ik dacht altijd dat ik besluiteloos was, maar nu ben ik er niet zo zeker van.", "Als je bent wat je eet, dan ben ik voornamelijk pizza en existentiële angst.", "Het mitochondrion is de krachtcentrale van de cel. (Verplichte meme-inhoud.)"];
                     const quote = quotes[Math.floor(Math.random() * quotes.length)];
                     randomOutput.innerHTML = `<p class="text-content text-2xl italic font-serif text-gray-800">"${quote}"</p>`;
                 }
             },
             {
-                name: "Meme Placeholder Photo",
+                name: "Meme Plaatsaanduiding Foto",
                 action: () => {
-                    const placeholders = [{ w: 300, h: 300, text: "Wait, That's Illegal" }, { w: 400, h: 200, text: "Unexpected Item in Bagging Area" }];
+                    const placeholders = [{ w: 300, h: 300, text: "Wacht, dat is illegaal" }, { w: 400, h: 200, text: "Onverwacht Item in Inpakgebied" }];
                     const item = placeholders[Math.floor(Math.random() * placeholders.length)];
                     const imageUrl = `https://placehold.co/${item.w}x${item.h}/1e40a0/ffffff?text=${item.text.replace(/ /g, '+')}`;
-                    randomOutput.innerHTML = `<img src="${imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/300x300/ff0000/ffffff?text=Image+Load+Error'" alt="Funny Placeholder" title="${item.text}">`;
+                    randomOutput.innerHTML = `<img src="${imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/300x300/ff0000/ffffff?text=Fout+bij+laden+afbeelding'" alt="Grappige Plaatsaanduiding" title="${item.text}">`;
                 }
             },
             {
-                name: "ASCII Art Surprise",
+                name: "ASCII Kunst Verrassing",
                 action: () => {
                     const asciiArt = [`<pre class="font-mono text-lg text-green-700"> ( •_•)\n ( ง )ง\n /  \\</pre>`, `<pre class="font-mono text-base text-purple-700"> _/|\n/  |\n|  |\n|  |\n|_/\n</pre>`];
                     const art = asciiArt[Math.floor(Math.random() * asciiArt.length)];
@@ -207,52 +340,52 @@
                 }
             },
             {
-                name: "Unexpected Fun Fact",
+                name: "Onverwacht Leuk Weetje",
                 action: () => {
-                    const facts = ["A group of flamingos is called a 'flamboyance.'", "Octopuses have three hearts.", "Honey never spoils."];
+                    const facts = ["Een groep flamingo's wordt een 'flamboyance' genoemd.", "Octopussen hebben drie harten.", "Honing bederft nooit."];
                     const fact = facts[Math.floor(Math.random() * facts.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-teal-700">🤯 Fun Fact:</div><p class="text-base text-teal-600">${fact}</p>`;
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-teal-700">🤯 Leuk Weetje:</div><p class="text-base text-teal-600">${fact}</p>`;
                     randomOutput.style.backgroundColor = '#ccfbf1'; 
                 }
             },
             {
-                name: "Wholesome Encouragement",
+                name: "Hartelijke Aanmoediging",
                 action: () => {
-                    const messages = ["You are doing great! Keep up the awesome work!", "Someone is proud of you today (it's me!).", "Your creativity is shining brighter than a supernova!"];
+                    const messages = ["Je doet het geweldig! Ga zo door!", "Iemand is vandaag trots op je (dat ben ik!).", "Je creativiteit schijnt helderder dan een supernova!"];
                     const message = messages[Math.floor(Math.random() * messages.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-2xl font-extrabold text-pink-600">💖 Positive Vibes!</div><p class="text-xl text-pink-500">${message}</p>`;
+                    randomOutput.innerHTML = `<div class="text-content text-2xl font-extrabold text-pink-600">💖 Positieve Vibes!</div><p class="text-xl text-pink-500">${message}</p>`;
                     randomOutput.style.backgroundColor = '#fce7f6'; 
                 }
             },
             {
-                name: "Simple Joke/Riddle",
+                name: "Simpele Mop/Riddle",
                 action: () => {
-                    const jokes = [{ q: "Why did the scarecrow win an award?", a: "Because he was outstanding in his field!" }, { q: "What do you call a fake noodle?", a: "An impasta." }];
+                    const jokes = [{ q: "Waarom won de vogelverschrikker een prijs?", a: "Omdat hij uitstekend was in zijn vak!" }, { q: "Wat noem je een nep-noedel?", a: "Een impasta." }];
                     const joke = jokes[Math.floor(Math.random() * jokes.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-center"><p class="text-xl font-medium text-blue-700 mb-2">❓ ${joke.q}</p><p class="text-sm italic text-blue-500 mt-2">(Hover over the text below for the answer!)</p><p class="text-answer font-bold text-lg">ANSWER: ${joke.a}</p></div>`;
+                    randomOutput.innerHTML = `<div class="text-content text-center"><p class="text-xl font-medium text-blue-700 mb-2">❓ ${joke.q}</p><p class="text-sm italic text-blue-500 mt-2">(Zweef over de tekst hieronder voor het antwoord!)</p><p class="text-answer font-bold text-lg">ANTWOORD: ${joke.a}</p></div>`;
                     randomOutput.style.backgroundColor = '#dbeafe'; 
                 }
             },
             {
-                name: "Pirate Talk",
+                name: "Piratentaal",
                 action: () => {
-                    const phrases = ["Ahoy, matey! Shiver me timbers!", "Where be the rum, ye landlubber?", "Aarrr! That's a fine click ye got there."];
+                    const phrases = ["Ahoy, maatje! Licht de zeilen!", "Waar is de rum, landrot?", "Aarrr! Dat is een fijne klik die je daar hebt."];
                     const phrase = phrases[Math.floor(Math.random() * phrases.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-2xl font-extrabold text-amber-700">🏴‍☠️ Pirate Mode:</div><p class="text-xl italic text-amber-600">${phrase}</p>`;
+                    randomOutput.innerHTML = `<div class="text-content text-2xl font-extrabold text-amber-700">🏴‍☠️ Piratenmodus:</div><p class="text-xl italic text-amber-600">${phrase}</p>`;
                     randomOutput.style.backgroundColor = '#fef3c7'; 
                 }
             },
             {
-                name: "Programming Humor",
+                name: "Programmeurshumor",
                 action: () => {
-                    const jokes = ["Why do programmers prefer dark mode? Because light attracts bugs!", "There are 10 types of people in the world: those who understand binary, and those who don't."];
+                    const jokes = ["Waarom geven programmeurs de voorkeur aan dark mode? Omdat licht insecten aantrekt (bugs)!", "Er zijn 10 soorten mensen op de wereld: zij die binair begrijpen, en zij die dat niet doen."];
                     const joke = jokes[Math.floor(Math.random() * jokes.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-mono text-red-700">🐛 Error Message:</div><p class="text-base text-red-600">${joke}</p>`;
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-mono text-red-700">🐛 Foutmelding:</div><p class="text-base text-red-600">${joke}</p>`;
                     randomOutput.style.backgroundColor = '#fee2e2'; 
                 }
             },
             {
-                name: "Random Emojis",
+                name: "Willekeurige Emoji's",
                 action: () => {
                     const emojis = ["🚀", "🍕", "🦄", "👽", "👾", "✨", "🔥", "🌈", "👑", "🌮", "🗿", "💀", "🧐"];
                     let emojiString = '';
@@ -263,11 +396,11 @@
                     randomOutput.style.backgroundColor = '#e0f2f1'; 
                 }
             },
-            // Interactive Events (10-11)
+            // Interactieve Gebeurtenissen
             {
-                name: "Annoying Follower",
+                name: "Vervelende Volger",
                 action: () => {
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-gray-700">👀 Watch out! Something is following you...</div>`;
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-gray-700">👀 Pas op! Iets volgt je...</div>`;
                     const follower = document.createElement('div');
                     follower.className = 'follower-box shadow-xl';
                     follower.style.backgroundColor = getRandomColor();
@@ -299,18 +432,18 @@
                 }
             },
             {
-                name: "Hidden Message Pop-up",
+                name: "Verborgen Bericht Pop-up",
                 action: () => {
-                    const messages = ["You found me!", "The cake is a lie.", "Hello from the corner!", "Don't click me!"];
+                    const messages = ["Je hebt me gevonden!", "De taart is een leugen.", "Hallo vanuit de hoek!", "Niet op mij klikken!"];
                     const msg = messages[Math.floor(Math.random() * messages.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-gray-700">A mysterious box has appeared!</div>`;
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-gray-700">Er is een mysterieuze doos verschenen!</div>`;
 
                     const popup = document.createElement('div');
                     popup.className = 'absolute p-2 bg-yellow-400 text-black text-xs font-bold rounded-lg shadow-xl cursor-pointer hover:scale-105 transition';
                     popup.style.left = `${Math.random() * 80 + 10}vw`; 
                     popup.style.top = `${Math.random() * 80 + 10}vh`; 
                     popup.style.zIndex = '1000';
-                    popup.innerHTML = `[Click to dismiss: ${msg}]`;
+                    popup.innerHTML = `[Klik om te sluiten: ${msg}]`;
                     
                     popup.onclick = () => { popup.remove(); };
                     document.body.appendChild(popup);
@@ -318,11 +451,10 @@
                     setTimeout(() => popup.remove(), 5000);
                 }
             },
-            // Content Event (12)
             {
-                name: "Ephemeral Canvas Art",
+                name: "Vluchtige Canvas Kunst",
                 action: () => {
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-indigo-700">🖼️ Abstract Art Generated! (Look around)</div>`;
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-indigo-700">🖼️ Abstracte Kunst gegenereerd! (Kijk rond)</div>`;
                     
                     const canvas = document.createElement('canvas');
                     canvas.className = 'ephemeral-canvas';
@@ -332,94 +464,123 @@
                     
                     const ctx = canvas.getContext('2d');
                     
-                    // Draw random shape
                     ctx.fillStyle = getRandomColor();
-                    ctx.globalAlpha = 0.5; // Make it semi-transparent
+                    ctx.globalAlpha = 0.5; 
 
                     const centerX = Math.random() * canvas.width;
                     const centerY = Math.random() * canvas.height;
                     const size = Math.random() * 100 + 50;
 
                     if (Math.random() > 0.5) {
-                        // Draw a circle
                         ctx.beginPath();
                         ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
                         ctx.fill();
                     } else {
-                        // Draw a rotating square
                         ctx.translate(centerX, centerY);
                         ctx.rotate(Math.random() * Math.PI);
                         ctx.fillRect(-size / 2, -size / 2, size, size);
                     }
 
-                    // Fade and remove after 1.5 seconds
                     setTimeout(() => {
                         canvas.style.opacity = '0';
                         setTimeout(() => canvas.remove(), 1000);
                     }, 1500);
                 }
             },
-            // NEW INTERACTIVE EVENT: Button Teleport (13)
             {
-                name: "Button Teleport",
+                name: "Knop Teleporteert",
                 action: () => {
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-red-600">⚠️ Button Relocating! Click Fast!</div>`;
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-red-600">⚠️ Knop verplaatst! Klik snel!</div>`;
 
-                    // Store current styles to restore later
                     const originalPosition = {
                         position: button.style.position,
                         left: button.style.left,
                         top: button.style.top,
                     };
                     
-                    // Set up button for teleporting
-                    button.style.position = 'fixed'; // Must be fixed to jump out of its container
+                    button.style.position = 'fixed'; 
                     button.style.zIndex = '1001';
-                    button.style.transition = 'none'; // Instant jump
+                    button.style.transition = 'none'; 
 
-                    // Jump to a random position (safe margins included)
                     const newX = Math.random() * (window.innerWidth * 0.8 - button.offsetWidth);
                     const newY = Math.random() * (window.innerHeight * 0.8 - button.offsetHeight);
                     
                     button.style.left = `${newX + window.innerWidth * 0.1}px`;
                     button.style.top = `${newY + window.innerHeight * 0.1}px`;
 
-                    // Move it back after 0.5 seconds
                     setTimeout(() => {
-                        // Restore original styles
                         button.style.position = originalPosition.position;
                         button.style.left = originalPosition.left;
                         button.style.top = originalPosition.top;
                         button.style.zIndex = '';
-                        button.style.transition = 'all 0.15s ease-in-out'; // Restore transition defined in CSS
+                        button.style.transition = 'all 0.15s ease-in-out'; 
                     }, 500);
+                }
+            },
+            // NIEUW: Cursor Trail
+            {
+                name: "Cursor Trail",
+                action: () => {
+                    startCursorTrail(2000); // 2 seconden de cursor trail
+                }
+            },
+            // NIEUW: Glitch Knoptekst
+            {
+                name: "Glitch Button Text",
+                action: () => {
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-mono text-gray-900">SYSTEM.TXT_CORRUPTION_DETECTED_</div>`;
+                    const glitch = (text) => {
+                        let newText = '';
+                        const chars = '█▓▒░▖▗▘▙▚▛▜▝▞▟$@#%^&*()_+=-';
+                        for (let i = 0; i < text.length; i++) {
+                            if (Math.random() < 0.3) {
+                                newText += chars[Math.floor(Math.random() * chars.length)];
+                            } else {
+                                newText += text[i];
+                            }
+                        }
+                        return newText;
+                    };
+
+                    const originalText = button.textContent;
+                    button.textContent = glitch(originalText);
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 200);
+                    setTimeout(() => {
+                         // Glitch opnieuw voor extra chaos
+                         button.textContent = glitch(originalText);
+                    }, 350);
+                    setTimeout(() => {
+                        button.textContent = defaultButtonText;
+                    }, 550);
                 }
             }
         ];
 
-        // --- VISUAL/AUDIO EVENTS (Run 1-3 per click) ---
+        // --- VISUELE/AUDIO GEBEURTENISSEN (1-3 per klik) ---
         const visualEvents = [
-            // Existing Visual Events (1-4)
-            { name: "Button Color Shift", action: () => { const color = getRandomColor(); button.style.backgroundColor = color; button.style.color = 'white'; } },
-            { name: "Brief Background Flash", action: () => { const color = getRandomColor(); body.style.backgroundColor = color; setTimeout(() => { body.style.backgroundColor = '#f0f4f8'; }, 300); } },
+            // Visuele Gebeurtenissen
+            { name: "Knop Kleurverschuiving", action: () => { const color = getRandomColor(); button.style.backgroundColor = color; button.style.color = 'white'; } },
+            { name: "Korte Achtergrondflits", action: () => { const color = getRandomColor(); body.style.backgroundColor = color; setTimeout(() => { body.style.backgroundColor = '#f0f4f8'; }, 300); } },
             { name: "Text Size Jolt", action: () => { const randomSize = Math.floor(Math.random() * 20) + 16; button.style.fontSize = `${randomSize}px`; } },
             { name: "Quick Spin and Rebound", action: () => { button.classList.add('fast-spin'); setTimeout(() => { button.classList.remove('fast-spin'); }, 800); } },
             
-            // CSS Filter Events (5-6)
-            {
-                name: "Invert Colors",
-                action: () => { body.style.filter = 'invert(100%)'; setTimeout(() => { body.style.filter = 'none'; }, 400); }
-            },
-            {
-                name: "Random Blur",
-                action: () => { const blurAmount = Math.floor(Math.random() * 5) + 2; body.style.filter = `blur(${blurAmount}px)`; setTimeout(() => { body.style.filter = 'none'; }, 500); }
-            },
+            // CSS Filter Gebeurtenissen
+            { name: "Invert Colors", action: () => { body.style.filter = 'invert(100%)'; setTimeout(() => { body.style.filter = 'none'; }, 400); } },
+            { name: "Random Blur", action: () => { const blurAmount = Math.floor(Math.random() * 5) + 2; body.style.filter = `blur(${blurAmount}px)`; setTimeout(() => { body.style.filter = 'none'; }, 500); } },
+            { name: "Page Tilt", action: () => { const tilt = Math.random() > 0.5 ? '5deg' : '-5deg'; body.style.transform = `rotate(${tilt})`; setTimeout(() => { body.style.transform = 'none'; }, 300); } },
             
-            // Audio Events (7-8)
+            // Audio Gebeurtenissen
             { name: "Sci-Fi Zap Sound", action: () => { if (isAudioReady) { synth.triggerAttackRelease("C5", "8n"); } } },
             { name: "Low Riser Sound", action: () => { if (isAudioReady) { noise.triggerAttackRelease("4n", "+0.1"); } } },
+            { name: "Random High Note Sound", action: () => { if (isAudioReady) { const notes = ["C6", "E6", "G6", "B6", "D7"]; const randomNote = notes[Math.floor(Math.random() * notes.length)]; synth.triggerAttackRelease(randomNote, "16n"); } } },
+            { name: "Cartoon Whoop Sound", action: () => { if (isAudioReady) { pluck.triggerAttackRelease("A5", "16n", Tone.now(), 0.8); pluck.set({ "dampening": 4000 }); } } },
+            { name: "Sad Trombone Sound", action: () => { if (isAudioReady) { monoSynth.triggerAttackRelease(["C3", "B2", "Bb2", "A2"], "2n"); } } },
+            { name: "Meme Bass Hit Sound", action: () => { if (isAudioReady) { memSynth.triggerAttackRelease("C1", "8n"); } } },
 
-            // Text/Font Events (9-11)
+            // Tekst/Font Gebeurtenissen
             {
                 name: "Reverse Text",
                 action: () => {
@@ -429,7 +590,7 @@
 
                     setTimeout(() => {
                         button.textContent = defaultButtonText;
-                        mainTitle.textContent = 'The Everything Button';
+                        mainTitle.textContent = defaultTitleText;
                     }, 500);
                 }
             },
@@ -457,26 +618,57 @@
                     }, 100);
                 }
             },
-            // NEW VISUAL EVENT: Page Tilt (12)
+
+            // Nieuwe Visuele/Annoying Gebeurtenissen
             {
-                name: "Page Tilt",
+                name: "Random Pulsing Border",
                 action: () => {
-                    const tilt = Math.random() > 0.5 ? '5deg' : '-5deg';
-                    body.style.transform = `rotate(${tilt})`;
+                    const color = getRandomColor();
+                    mainContainer.style.setProperty('--border-color', color);
+                    mainContainer.classList.add('pulsing-border');
+
                     setTimeout(() => {
-                        body.style.transform = 'none';
-                    }, 300);
+                         mainContainer.classList.remove('pulsing-border');
+                         mainContainer.style.removeProperty('--border-color');
+                    }, 1500);
                 }
             },
-            // NEW AUDIO: Random High Note (13)
             {
-                name: "Random High Note Sound",
+                name: "Text Shadow Jiggle",
                 action: () => {
-                    if (isAudioReady) {
-                        const notes = ["C6", "E6", "G6", "B6", "D7"];
-                        const randomNote = notes[Math.floor(Math.random() * notes.length)];
-                        synth.triggerAttackRelease(randomNote, "16n");
-                    }
+                    const color1 = getRandomColor();
+                    const color2 = getRandomColor();
+                    mainTitle.style.textShadow = `3px 3px 0 ${color1}, -3px -3px 0 ${color2}`;
+
+                    setTimeout(() => {
+                        mainTitle.style.textShadow = 'none';
+                    }, 400);
+                }
+            },
+            {
+                name: "Scroll Lock",
+                action: () => {
+                    body.style.overflow = 'hidden';
+                    setTimeout(() => {
+                        body.style.overflow = 'auto';
+                    }, 2000); 
+                }
+            },
+            {
+                name: "Confetti Regen",
+                action: () => {
+                    spawnConfetti(50); 
+                }
+            },
+            // NIEUW: Haptic Trilling
+            {
+                name: "Haptic Vibrate",
+                action: () => {
+                    mainContainer.classList.add('haptic-vibrate');
+
+                    setTimeout(() => {
+                        mainContainer.classList.remove('haptic-vibrate');
+                    }, 200); 
                 }
             }
         ];
@@ -487,26 +679,26 @@
             
             if (button.disabled) return; 
 
-            // 1. Reset temporary visual elements
+            // 1. Reset tijdelijke visuele elementen
             resetVisuals();
             
-            // 2. Clear previous random content
+            // 2. Wis vorige willekeurige content
             clearContent();
 
-            // 3. Determine how many visual events will fire (1 to 3 events)
+            // 3. Bepaal hoeveel visuele gebeurtenissen zullen plaatsvinden (1 tot 3 gebeurtenissen)
             const numVisualEvents = Math.floor(Math.random() * 3) + 1; 
             
-            // 4. Run the visual/audio chaos
+            // 4. Voer de visuele/audio chaos uit
             for (let i = 0; i < numVisualEvents; i++) {
                 const randomIndex = Math.floor(Math.random() * visualEvents.length);
                 visualEvents[randomIndex].action(); 
             }
 
-            // 5. Always run ONE content/interactive event 
+            // 5. Voer altijd ÉÉN content/interactieve gebeurtenis uit
             const contentIndex = Math.floor(Math.random() * contentEvents.length);
             contentEvents[contentIndex].action();
             
-            // 6. Add a small temporary lock
+            // 6. Voeg een kleine tijdelijke vergrendeling toe
             button.disabled = true;
             setTimeout(() => {
                 button.disabled = false;
