@@ -23,7 +23,7 @@
         body {
             font-family: var(--main-font);
             background-color: #f0f4f8;
-            transition: background-color 0.5s ease, filter 0.5s ease;
+            transition: background-color 0.5s ease, filter 0.5s ease, transform 0.3s ease; /* Added transform */
             position: relative; 
             overflow: hidden; 
         }
@@ -158,7 +158,16 @@
             button.style.transform = 'scale(1)';
             button.style.fontSize = '2rem';
             button.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
+
+            // NEW RESET FOR CHAOS
             body.style.filter = 'none'; 
+            body.style.transform = 'none'; // Added for Page Tilt reset
+            
+            // Reset button position (especially after teleport)
+            button.style.position = ''; 
+            button.style.left = '';
+            button.style.top = '';
+            button.style.zIndex = '';
         };
         
         // Function to clear existing content
@@ -309,7 +318,7 @@
                     setTimeout(() => popup.remove(), 5000);
                 }
             },
-            // NEW CONTENT EVENT: Ephemeral Canvas Art (12)
+            // Content Event (12)
             {
                 name: "Ephemeral Canvas Art",
                 action: () => {
@@ -349,6 +358,42 @@
                         setTimeout(() => canvas.remove(), 1000);
                     }, 1500);
                 }
+            },
+            // NEW INTERACTIVE EVENT: Button Teleport (13)
+            {
+                name: "Button Teleport",
+                action: () => {
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-red-600">⚠️ Button Relocating! Click Fast!</div>`;
+
+                    // Store current styles to restore later
+                    const originalPosition = {
+                        position: button.style.position,
+                        left: button.style.left,
+                        top: button.style.top,
+                    };
+                    
+                    // Set up button for teleporting
+                    button.style.position = 'fixed'; // Must be fixed to jump out of its container
+                    button.style.zIndex = '1001';
+                    button.style.transition = 'none'; // Instant jump
+
+                    // Jump to a random position (safe margins included)
+                    const newX = Math.random() * (window.innerWidth * 0.8 - button.offsetWidth);
+                    const newY = Math.random() * (window.innerHeight * 0.8 - button.offsetHeight);
+                    
+                    button.style.left = `${newX + window.innerWidth * 0.1}px`;
+                    button.style.top = `${newY + window.innerHeight * 0.1}px`;
+
+                    // Move it back after 0.5 seconds
+                    setTimeout(() => {
+                        // Restore original styles
+                        button.style.position = originalPosition.position;
+                        button.style.left = originalPosition.left;
+                        button.style.top = originalPosition.top;
+                        button.style.zIndex = '';
+                        button.style.transition = 'all 0.15s ease-in-out'; // Restore transition defined in CSS
+                    }, 500);
+                }
             }
         ];
 
@@ -374,13 +419,11 @@
             { name: "Sci-Fi Zap Sound", action: () => { if (isAudioReady) { synth.triggerAttackRelease("C5", "8n"); } } },
             { name: "Low Riser Sound", action: () => { if (isAudioReady) { noise.triggerAttackRelease("4n", "+0.1"); } } },
 
-            // NEW VISUAL EVENT: Text Reversal (9)
+            // Text/Font Events (9-11)
             {
                 name: "Reverse Text",
                 action: () => {
-                    // Function to reverse text
                     const reverseString = (str) => str.split('').reverse().join('');
-                    
                     button.textContent = reverseString(defaultButtonText);
                     mainTitle.textContent = reverseString(mainTitle.textContent);
 
@@ -390,7 +433,6 @@
                     }, 500);
                 }
             },
-            // NEW VISUAL EVENT: Font Swap (10)
             {
                 name: "Font Swap",
                 action: () => {
@@ -406,7 +448,6 @@
                     }, 1000);
                 }
             },
-            // NEW VISUAL EVENT: Quick Bounce (11)
             {
                 name: "Quick Bounce",
                 action: () => {
@@ -414,6 +455,28 @@
                     setTimeout(() => {
                         button.style.transform = 'translateY(0)';
                     }, 100);
+                }
+            },
+            // NEW VISUAL EVENT: Page Tilt (12)
+            {
+                name: "Page Tilt",
+                action: () => {
+                    const tilt = Math.random() > 0.5 ? '5deg' : '-5deg';
+                    body.style.transform = `rotate(${tilt})`;
+                    setTimeout(() => {
+                        body.style.transform = 'none';
+                    }, 300);
+                }
+            },
+            // NEW AUDIO: Random High Note (13)
+            {
+                name: "Random High Note Sound",
+                action: () => {
+                    if (isAudioReady) {
+                        const notes = ["C6", "E6", "G6", "B6", "D7"];
+                        const randomNote = notes[Math.floor(Math.random() * notes.length)];
+                        synth.triggerAttackRelease(randomNote, "16n");
+                    }
                 }
             }
         ];
