@@ -3,15 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Everything Button</title>
+    <title>The Everything Button - Complete Chaos</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tone.js for sound effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f4f8;
-            transition: background-color 0.5s ease;
+            transition: background-color 0.5s ease, filter 0.5s ease;
+            position: relative; /* Needed for fixed/absolute elements */
+            overflow: hidden; /* Prevent scrollbars from chaos */
         }
 
         /* Custom Styles for the Button */
@@ -37,12 +41,12 @@
 
         /* Style for the random content output */
         #randomOutput {
-            min-height: 150px; /* Ensure space is reserved */
+            min-height: 150px; 
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            background-color: #fef9e7; /* Light yellow */
+            background-color: #fef9e7; 
         }
         #randomOutput img {
             max-width: 100%;
@@ -57,13 +61,28 @@
         }
         /* Specific styling for the joke/riddle answer */
         #randomOutput .text-answer {
-            color: transparent; /* Makes the text invisible */
+            color: transparent; 
             transition: all 0.3s ease-in-out;
-            cursor: help; /* Suggests interaction */
+            cursor: help; 
         }
         #randomOutput .text-answer:hover {
-            color: #0c4a6e; /* Dark blue on hover to reveal answer */
+            color: #0c4a6e; 
             text-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        /* Styling for the annoying follower element */
+        .follower-box {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            opacity: 0.9;
+            pointer-events: none; /* Ignore mouse clicks */
+            z-index: 1000;
+            transition: opacity 0.5s;
         }
 
         @keyframes bounceIn {
@@ -92,15 +111,36 @@
     </div>
 
     <script>
+        // === Tone.js Setup ===
+        let isAudioReady = false;
+        // Basic synths for sound effects
+        const synth = new Tone.Synth().toDestination();
+        const noise = new Tone.NoiseSynth({
+            noise: { type: "white" },
+            envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 }
+        }).toDestination();
+        
+        // This function attempts to start the audio context on user interaction (the button click)
+        const startAudioContext = async () => {
+            if (!isAudioReady) {
+                try {
+                    await Tone.start();
+                    isAudioReady = true;
+                    console.log("Audio Context Started");
+                } catch (e) {
+                    console.error("Could not start audio context:", e);
+                }
+            }
+        };
+
         // === Core Variables ===
         const button = document.getElementById('chaosButton');
         const body = document.body;
         const randomOutput = document.getElementById('randomOutput');
         
-        // Ensure initial button state is set
         button.textContent = 'PRESS THE CHAOS BUTTON';
         button.style.fontSize = '2rem';
-        button.style.backgroundColor = '#4f46e5'; // indigo-600
+        button.style.backgroundColor = '#4f46e5'; 
 
         // Function to generate a random HEX color
         const getRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
@@ -114,6 +154,7 @@
             button.style.transform = 'scale(1)';
             button.style.fontSize = '2rem';
             button.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
+            body.style.filter = 'none'; // Reset body filter
         };
         
         // Function to clear existing content
@@ -123,18 +164,16 @@
             randomOutput.style.backgroundColor = '#fef9e7';
         };
 
-
-        // === The List of Random Content Events (Now with EVEN MORE variety!) ===
+        // --- CONTENT/INTERACTIVE EVENTS (Run one per click) ---
+        // This list includes all previous content categories plus the new interactive elements.
         const contentEvents = [
-            // Category 1: Funny Quotes/Meme Text
+            // 1. Random Funny Quote
             {
                 name: "Random Funny Quote",
                 action: () => {
                     const quotes = [
                         "I used to think I was indecisive, but now I'm not so sure.",
                         "If you are what you eat, then I am mostly pizza and existential dread.",
-                        "My life has a hard drive with 1TB of data, 999GB is cat videos.",
-                        "I told my computer I needed a break, and now it won't stop playing the 'Macarena'.",
                         "The mitochondria is the powerhouse of the cell. (Mandatory meme content.)",
                         "I'm not clumsy. The floor just hates me, the walls are bullies, and the furniture keeps moving.",
                         "Just when I found the meaning of life, they changed it."
@@ -143,7 +182,7 @@
                     randomOutput.innerHTML = `<p class="text-content text-2xl italic font-serif text-gray-800">"${quote}"</p>`;
                 }
             },
-            // Category 2: Placeholder Images
+            // 2. Meme Placeholder Photo
             {
                 name: "Meme Placeholder Photo",
                 action: () => {
@@ -158,7 +197,7 @@
                     randomOutput.innerHTML = `<img src="${imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/300x300/ff0000/ffffff?text=Image+Load+Error'" alt="Funny Placeholder" title="${item.text}">`;
                 }
             },
-            // Category 3: ASCII Art
+            // 3. ASCII Art Surprise
             {
                 name: "ASCII Art Surprise",
                 action: () => {
@@ -178,106 +217,64 @@
 |  |
 |  |
 |  |
-|  |
-|  |
-|  |
-|  |
-|  |
-|  |
-|  |
-|_/
 </pre>`,
                     ];
                     const art = asciiArt[Math.floor(Math.random() * asciiArt.length)];
                     randomOutput.innerHTML = `<div class="text-center">${art}</div>`;
-                    randomOutput.style.backgroundColor = '#f3e8ff'; // light purple
+                    randomOutput.style.backgroundColor = '#f3e8ff'; 
                 }
             },
-            // Category 4: Fun Fact
+            // 4. Unexpected Fun Fact
             {
                 name: "Unexpected Fun Fact",
                 action: () => {
-                    const facts = [
-                        "A group of flamingos is called a 'flamboyance.'",
-                        "The shortest war in history lasted only 38 to 45 minutes (between Britain and Zanzibar).",
-                        "Octopuses have three hearts.",
-                        "The person who invented the Frisbee was turned into a Frisbee after he died.",
-                        "Honey never spoils. Archaeologists have found edible honey in ancient Egyptian tombs.",
-                        "A day on Venus is longer than a year on Venus."
-                    ];
+                    const facts = ["A group of flamingos is called a 'flamboyance.'", "Octopuses have three hearts.", "Honey never spoils.", "A day on Venus is longer than a year on Venus."];
                     const fact = facts[Math.floor(Math.random() * facts.length)];
                     randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-teal-700">🤯 Fun Fact:</div><p class="text-base text-teal-600">${fact}</p>`;
-                    randomOutput.style.backgroundColor = '#ccfbf1'; // light teal
+                    randomOutput.style.backgroundColor = '#ccfbf1'; 
                 }
             },
-            // Category 5: Wholesome Encouragement
+            // 5. Wholesome Encouragement
             {
                 name: "Wholesome Encouragement",
                 action: () => {
-                    const messages = [
-                        "You are doing great! Keep up the awesome work!",
-                        "Someone is proud of you today (it's me!).",
-                        "Remember to drink water and take a quick stretch break!",
-                        "Your creativity is shining brighter than a supernova!",
-                        "Even on a chaotic day, you rock the universe. ✨"
-                    ];
+                    const messages = ["You are doing great! Keep up the awesome work!", "Someone is proud of you today (it's me!).", "Your creativity is shining brighter than a supernova!"];
                     const message = messages[Math.floor(Math.random() * messages.length)];
                     randomOutput.innerHTML = `<div class="text-content text-2xl font-extrabold text-pink-600">💖 Positive Vibes!</div><p class="text-xl text-pink-500">${message}</p>`;
-                    randomOutput.style.backgroundColor = '#fce7f6'; // light pink
+                    randomOutput.style.backgroundColor = '#fce7f6'; 
                 }
             },
-            // Category 6: Simple Joke/Riddle
+            // 6. Simple Joke/Riddle
             {
                 name: "Simple Joke/Riddle",
                 action: () => {
-                    const jokes = [
-                        { q: "Why did the scarecrow win an award?", a: "Because he was outstanding in his field!" },
-                        { q: "What do you call a fake noodle?", a: "An impasta." },
-                        { q: "What do you call a bear with no teeth?", a: "A gummy bear!" },
-                        { q: "Why don't scientists trust atoms?", a: "Because they make up everything!" }
-                    ];
+                    const jokes = [{ q: "Why did the scarecrow win an award?", a: "Because he was outstanding in his field!" }, { q: "What do you call a fake noodle?", a: "An impasta." }];
                     const joke = jokes[Math.floor(Math.random() * jokes.length)];
-                    randomOutput.innerHTML = `
-                        <div class="text-content text-center">
-                            <p class="text-xl font-medium text-blue-700 mb-2">❓ ${joke.q}</p>
-                            <p class="text-sm italic text-blue-500 mt-2">(Hover over the text below for the answer!)</p>
-                            <p class="text-answer font-bold text-lg">ANSWER: ${joke.a}</p>
-                        </div>
-                    `;
-                    randomOutput.style.backgroundColor = '#dbeafe'; // light blue
+                    randomOutput.innerHTML = `<div class="text-content text-center"><p class="text-xl font-medium text-blue-700 mb-2">❓ ${joke.q}</p><p class="text-sm italic text-blue-500 mt-2">(Hover over the text below for the answer!)</p><p class="text-answer font-bold text-lg">ANSWER: ${joke.a}</p></div>`;
+                    randomOutput.style.backgroundColor = '#dbeafe'; 
                 }
             },
-            // NEW CATEGORY 7: Pirate Talk
+            // 7. Pirate Talk
             {
                 name: "Pirate Talk",
                 action: () => {
-                    const phrases = [
-                        "Ahoy, matey! Shiver me timbers!",
-                        "Where be the rum, ye landlubber?",
-                        "Aarrr! That's a fine click ye got there.",
-                        "Avast ye, this button holds the kraken's gold!",
-                    ];
+                    const phrases = ["Ahoy, matey! Shiver me timbers!", "Where be the rum, ye landlubber?", "Aarrr! That's a fine click ye got there."];
                     const phrase = phrases[Math.floor(Math.random() * phrases.length)];
                     randomOutput.innerHTML = `<div class="text-content text-2xl font-extrabold text-amber-700">🏴‍☠️ Pirate Mode:</div><p class="text-xl italic text-amber-600">${phrase}</p>`;
-                    randomOutput.style.backgroundColor = '#fef3c7'; // light amber
+                    randomOutput.style.backgroundColor = '#fef3c7'; 
                 }
             },
-            // NEW CATEGORY 8: Programming Humor
+            // 8. Programming Humor
             {
                 name: "Programming Humor",
                 action: () => {
-                    const jokes = [
-                        "Why do programmers prefer dark mode? Because light attracts bugs!",
-                        "There are 10 types of people in the world: those who understand binary, and those who don't.",
-                        "My code doesn't work. I don't know why. My code works. I don't know why.",
-                        "Debugging: Removing the needles from the haystack, one by one.",
-                    ];
+                    const jokes = ["Why do programmers prefer dark mode? Because light attracts bugs!", "There are 10 types of people in the world: those who understand binary, and those who don't."];
                     const joke = jokes[Math.floor(Math.random() * jokes.length)];
                     randomOutput.innerHTML = `<div class="text-content text-xl font-mono text-red-700">🐛 Error Message:</div><p class="text-base text-red-600">${joke}</p>`;
-                    randomOutput.style.backgroundColor = '#fee2e2'; // light red
+                    randomOutput.style.backgroundColor = '#fee2e2'; 
                 }
             },
-            // NEW CATEGORY 9: Random Emojis
+            // 9. Random Emojis
             {
                 name: "Random Emojis",
                 action: () => {
@@ -287,100 +284,152 @@
                         emojiString += emojis[Math.floor(Math.random() * emojis.length)];
                     }
                     randomOutput.innerHTML = `<div class="text-content text-5xl">${emojiString}</div>`;
-                    randomOutput.style.backgroundColor = '#e0f2f1'; // light cyan
+                    randomOutput.style.backgroundColor = '#e0f2f1'; 
+                }
+            },
+            // 10. NEW INTERACTIVE EVENT: Annoying Follower
+            {
+                name: "Annoying Follower",
+                action: () => {
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-gray-700">👀 Watch out! Something is following you...</div>`;
+                    randomOutput.style.backgroundColor = '#ffe4e6'; 
+                    
+                    const follower = document.createElement('div');
+                    const followerColor = getRandomColor();
+                    follower.className = 'follower-box shadow-xl';
+                    follower.style.backgroundColor = followerColor;
+                    follower.style.left = `${Math.random() * 90}vw`;
+                    follower.style.top = `${Math.random() * 90}vh`;
+                    follower.innerHTML = '🚨';
+                    document.body.appendChild(follower);
+
+                    const moveFollower = (e) => {
+                        // Slowly move the follower towards the cursor position (smoothed motion)
+                        const speed = 0.05; 
+                        const rect = follower.getBoundingClientRect();
+                        const fX = rect.left;
+                        const fY = rect.top;
+                        
+                        const newX = fX + (e.clientX - fX) * speed;
+                        const newY = fY + (e.clientY - fY) * speed;
+
+                        follower.style.left = `${newX}px`;
+                        follower.style.top = `${newY}px`;
+                    };
+
+                    document.addEventListener('mousemove', moveFollower);
+
+                    // Clean up after 3 seconds
+                    setTimeout(() => {
+                        follower.style.opacity = '0';
+                        document.removeEventListener('mousemove', moveFollower);
+                        setTimeout(() => follower.remove(), 500);
+                    }, 3000);
+                }
+            },
+            // 11. NEW INTERACTIVE EVENT: Hidden Message Pop-up
+            {
+                name: "Hidden Message Pop-up",
+                action: () => {
+                    const messages = ["You found me!", "The cake is a lie.", "Hello from the corner!", "Don't click me!", "Have you checked the fridge?"];
+                    const msg = messages[Math.floor(Math.random() * messages.length)];
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-gray-700">A mysterious box has appeared!</div>`;
+
+                    const popup = document.createElement('div');
+                    popup.className = 'absolute p-2 bg-yellow-400 text-black text-xs font-bold rounded-lg shadow-xl cursor-pointer hover:scale-105 transition';
+                    popup.style.left = `${Math.random() * 80 + 10}vw`; // Random horizontal position
+                    popup.style.top = `${Math.random() * 80 + 10}vh`; // Random vertical position
+                    popup.style.zIndex = '1000';
+                    popup.innerHTML = `[Click to dismiss: ${msg}]`;
+                    
+                    popup.onclick = () => {
+                        popup.remove();
+                    };
+                    document.body.appendChild(popup);
+
+                    // Clean up after 5 seconds if not clicked
+                    setTimeout(() => popup.remove(), 5000);
                 }
             }
         ];
 
-        // === The List of Random Visual Events (Unchanged) ===
+        // --- VISUAL/AUDIO EVENTS (Run 1-3 per click) ---
         const visualEvents = [
+            // Existing Visual Events
+            { name: "Button Color Shift", action: () => { const color = getRandomColor(); button.style.backgroundColor = color; button.style.color = 'white'; } },
+            { name: "Brief Background Flash", action: () => { const color = getRandomColor(); body.style.backgroundColor = color; setTimeout(() => { body.style.backgroundColor = '#f0f4f8'; }, 300); } },
+            { name: "Text Size Jolt", action: () => { const randomSize = Math.floor(Math.random() * 20) + 16; button.style.fontSize = `${randomSize}px`; } },
+            { name: "Quick Spin and Rebound", action: () => { button.classList.add('fast-spin'); setTimeout(() => { button.classList.remove('fast-spin'); }, 800); } },
+            
+            // NEW VISUAL: Invert Colors
             {
-                name: "Button Color Shift",
+                name: "Invert Colors",
                 action: () => {
-                    const color = getRandomColor();
-                    button.style.backgroundColor = color;
-                    button.style.color = 'white';
-                }
-            },
-            {
-                name: "Brief Background Flash",
-                action: () => {
-                    const color = getRandomColor();
-                    body.style.backgroundColor = color;
+                    body.style.filter = 'invert(100%)';
                     setTimeout(() => {
-                        body.style.backgroundColor = '#f0f4f8';
-                    }, 300);
+                        body.style.filter = 'none';
+                    }, 400);
                 }
             },
+            // NEW VISUAL: Random Blur
             {
-                name: "Text Size Jolt",
+                name: "Random Blur",
                 action: () => {
-                    const randomSize = Math.floor(Math.random() * 20) + 16;
-                    button.style.fontSize = `${randomSize}px`;
-                }
-            },
-            {
-                name: "Quick Spin and Rebound",
-                action: () => {
-                    button.classList.add('fast-spin');
+                    const blurAmount = Math.floor(Math.random() * 5) + 2; 
+                    body.style.filter = `blur(${blurAmount}px)`;
                     setTimeout(() => {
-                        button.classList.remove('fast-spin');
-                    }, 800);
-                }
-            },
-            {
-                name: "Shadow Surge",
-                action: () => {
-                    const color = getRandomColor();
-                    button.style.boxShadow = `0 0 50px 15px ${color}`;
-                    setTimeout(() => {
-                        button.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
+                        body.style.filter = 'none';
                     }, 500);
                 }
             },
+            // NEW AUDIO: Sci-Fi Zap (requires audio context to be started)
             {
-                name: "Button Text Swap",
+                name: "Sci-Fi Zap Sound",
                 action: () => {
-                    const newTexts = ["CHAOS RULEZ", "WHAT DID YOU DO?", "CLICK ME NOW!", "HAVE FUN!", "THE VOID BECKONS"];
-                    button.textContent = newTexts[Math.floor(Math.random() * newTexts.length)];
+                    if (isAudioReady) {
+                        synth.triggerAttackRelease("C5", "8n");
+                    }
                 }
             },
+            // NEW AUDIO: Low Riser (requires audio context to be started)
             {
-                name: "World Pulse",
+                name: "Low Riser Sound",
                 action: () => {
-                    body.classList.add('slow-pulse');
-                    setTimeout(() => {
-                        body.classList.remove('slow-pulse');
-                    }, 3000);
+                    if (isAudioReady) {
+                        noise.triggerAttackRelease("4n", "+0.1"); 
+                    }
                 }
-            },
+            }
         ];
 
         // === Event Listener ===
         button.addEventListener('click', () => {
-            // Check for temporary lock (optional, but good practice)
+            // 1. Start Audio Context (must be on user interaction)
+            startAudioContext(); 
+            
+            // Check for temporary lock
             if (button.disabled) return; 
 
-            // 1. Reset visual elements that should only be temporary
+            // 2. Reset visual elements
             resetVisuals();
             
-            // 2. Clear previous random content before starting the new event
+            // 3. Clear previous random content
             clearContent();
 
-            // 3. Determine how many visual events will fire (1 to 3 events)
+            // 4. Determine how many visual events will fire (1 to 3 events)
             const numVisualEvents = Math.floor(Math.random() * 3) + 1; 
             
-            // 4. Run the visual chaos
+            // 5. Run the visual/audio chaos
             for (let i = 0; i < numVisualEvents; i++) {
                 const randomIndex = Math.floor(Math.random() * visualEvents.length);
                 visualEvents[randomIndex].action(); 
             }
 
-            // 5. Always run ONE content event to guarantee a new display
+            // 6. Always run ONE content/interactive event 
             const contentIndex = Math.floor(Math.random() * contentEvents.length);
             contentEvents[contentIndex].action();
             
-            // 6. Add a small temporary lock to prevent spamming too quickly
+            // 7. Add a small temporary lock
             button.disabled = true;
             setTimeout(() => {
                 button.disabled = false;
