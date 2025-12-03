@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>De Dubbele Chaosknop - Drie Modus Editie</title>
+    <title>De Onvoorspelbare Chaosknop - Verborgen Modi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Tone.js voor geluidseffecten -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
@@ -13,30 +13,27 @@
         /* Standaard Lettertype en CSS Variabelen voor Lettertype Wissel */
         :root {
             --main-font: 'Inter', sans-serif;
-            cursor: default; /* Standaard cursor */
+            cursor: default; 
         }
         .font-inter { --main-font: 'Inter', sans-serif; }
         .font-impact { font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif !important; }
 
         body {
+            /* Neutrale Basis Achtergrond */
+            background-color: #171717;
             font-family: var(--main-font);
-            background-color: #0d0d0d; /* Donkere achtergrond */
-            color: #d1d5db; /* Lichte tekst */
+            color: #d1d5db;
+            /* Zorgt voor vloeiende overgang bij de achtergrondkleurwissel */
             transition: background-color 0.5s ease, filter 0.5s ease, transform 0.3s ease; 
             position: relative; 
             overflow-x: hidden; 
         }
-
-        /* Aangepaste Cursors voor Horror */
-        .cursor-skull { cursor: url("https://www.google.com/intl/en_ALL/images/hand_f2536b0d1e57a3e790c8b394d2713e71.cur"), auto !important; }
-        /* Fallback voor skull, of een error icon */
-        .cursor-error { cursor: crosshair !important; } 
-
+        
         /* Aangepaste Stijlen voor de Knop */
         #chaosButton {
             transition: all 0.15s ease-in-out;
             cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.1) inset, 0 10px 20px rgba(0, 0, 0, 0.5);
             font-size: 2rem;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
@@ -46,119 +43,67 @@
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
         }
 
-        /* Dynamische Klassen voor de Chaos */
-        .fast-spin { animation: spin 0.5s infinite linear; }
-        .pulsing-border { animation: pulse-border 1s infinite alternate; }
-        .haptic-vibrate { animation: vibrate 0.1s infinite alternate; }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse-border { 0% { box-shadow: 0 0 0 0px var(--border-color, #ef4444); } 100% { box-shadow: 0 0 10px 10px var(--border-color, #ef4444); } }
-        @keyframes vibrate { 
-            0% { transform: translate(1px, 1px); } 
-            25% { transform: translate(-1px, 2px); } 
-            50% { transform: translate(2px, -1px); } 
-            75% { transform: translate(-2px, -2px); } 
-            100% { transform: translate(1px, 1px); } 
-        }
-
-        /* VHS Glitch Effect (Horror) */
-        .vhs-glitch { 
-            animation: glitch 0.05s infinite alternate; 
-        }
-
-        @keyframes glitch {
-            0% { transform: skewX(1deg) translateY(0px); }
-            50% { transform: skewX(-1deg) translateY(1px); }
-            100% { transform: skewX(0deg) translateY(-1px); }
-        }
-
-        /* Jumpscare Tekst Stijl (Horror) */
-        .jumpscare-text {
+        /* Modal Overlay voor Pop-up Obstakels */
+        #obstacleOverlay {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(1);
-            font-size: 5rem;
-            font-weight: bold;
-            color: #ff0000;
-            text-shadow: 0 0 15px #ff0000;
-            opacity: 0;
-            z-index: 5000;
-            pointer-events: none;
-            animation: jumpscare-flash 0.1s linear 3 forwards; /* Korte, snelle flits */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none; /* Standaard verborgen */
+            align-items: center;
+            justify-content: center;
+            z-index: 7000;
         }
-        @keyframes jumpscare-flash {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
-        }
-        
-        /* Jumpscare Afbeelding Stijl (Horror) */
+
+        /* Jumpscare Afbeelding Stijl */
         .jumpscare-image-flash {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(1.5);
-            font-size: 15rem; /* Heel groot */
+            font-size: 15rem; 
             opacity: 0;
-            z-index: 6000; /* Hoger dan tekst */
+            z-index: 6000;
             pointer-events: none;
-            animation: image-jumpscare-flash 0.1s ease-in 2 forwards; /* Korte, snelle flits, twee keer herhalen */
+            animation: image-jumpscare-flash 0.1s ease-in 2 forwards; 
         }
         @keyframes image-jumpscare-flash {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); filter: brightness(1); }
             50% { opacity: 1; transform: translate(-50%, -50%) scale(1.8); filter: brightness(2); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); filter: brightness(1); }
-        }
-        
-        /* Stijl voor de willekeurige content uitvoer */
-        #randomOutput {
-            min-height: 150px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            background-color: #262626; /* Donkere output */
-        }
-        
-        .trail {
-            position: fixed;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 0.8;
-            z-index: 900;
-            transition: opacity 1s, transform 1s;
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
         }
 
-        /* Stijl voor Confetti */
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            top: -10px;
-            z-index: 999;
-            transform-origin: 100% 100%;
-            animation: confetti-fall 3s forwards;
-            border-radius: 2px;
-        }
-
-        @keyframes confetti-fall {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
-        }
+        /* Overige effect stijlen (confetti, trail, etc.) */
+        .vhs-glitch { animation: glitch 0.05s infinite alternate; }
+        @keyframes glitch { 0% { transform: skewX(1deg) translateY(0px); } 50% { transform: skewX(-1deg) translateY(1px); } 100% { transform: skewX(0deg) translateY(-1px); } }
+        .trail { position: fixed; width: 5px; height: 5px; border-radius: 50%; pointer-events: none; opacity: 0.8; z-index: 900; transition: opacity 1s, transform 1s; }
+        .confetti { position: fixed; width: 10px; height: 10px; top: -10px; z-index: 999; transform-origin: 100% 100%; animation: confetti-fall 3s forwards; border-radius: 2px; }
+        @keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(105vh) rotate(720deg); opacity: 0; } }
 
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 font-inter">
 
-    <!-- Container voor Jumpscare Tekst -->
+    <!-- Container voor Jumpscare Tekst/Afbeelding -->
     <div id="jumpscareContainer"></div>
 
+    <!-- NIEUW: Pop-up Obstakel Modal -->
+    <div id="obstacleOverlay">
+        <div id="obstacleModal" class="bg-[#171717] rounded-xl p-8 max-w-sm w-full shadow-2xl border border-red-500/50 transform scale-100 transition-transform duration-300">
+            <h2 id="modalTitle" class="text-3xl font-extrabold mb-4 text-red-500">OBSTAKEL DETECTEERD!</h2>
+            <p id="modalMessage" class="text-gray-400 mb-6">De knop is tijdelijk geblokkeerd. U moet dit bericht sluiten om verder te gaan.</p>
+            <button id="closeModalButton" class="w-full py-3 rounded-xl font-bold bg-red-800 hover:bg-red-700 text-white transition-colors">
+                SLUIT HET PORTAAL
+            </button>
+        </div>
+    </div>
+    
+    <!-- Hoofd Container -->
     <div id="mainContainer" class="w-full max-w-lg bg-[#171717] rounded-3xl p-6 md:p-10 shadow-2xl text-center z-50 transition-all border border-red-900/50">
-        <h1 id="mainTitle" class="text-4xl font-extrabold mb-4 text-red-500/80">De Dubbele Chaosknop</h1>
-        <p class="text-gray-400 mb-2">Druk. En ervaar pure willekeur: chaos, horror of... vreugde?</p>
+        <h1 id="mainTitle" class="text-4xl font-extrabold mb-4 text-red-500/80">De Onvoorspelbare Chaosknop</h1>
+        <p class="text-gray-400 mb-2">Druk. En ervaar pure willekeur. Pas op voor de pop-ups.</p>
 
         <!-- Chaos Teller -->
         <div id="clickCounter" class="text-lg font-bold mb-6 text-gray-500">
@@ -182,12 +127,9 @@
         
         // --- Horror Synths ---
         const drone = new Tone.FMSynth({
-            harmonicity: 3.01,
-            modulationIndex: 14,
-            oscillator: { type: "triangle" },
+            harmonicity: 3.01, modulationIndex: 14, oscillator: { type: "triangle" },
             envelope: { attack: 0.8, decay: 0.3, sustain: 0.7, release: 2.0 },
-            modulation: { type: "square" },
-            modulationEnvelope: { attack: 0.01, decay: 0.01, sustain: 1, release: 0.5 }
+            modulation: { type: "square" }, modulationEnvelope: { attack: 0.01, decay: 0.01, sustain: 1, release: 0.5 }
         }).toDestination();
         const screamSynth = new Tone.NoiseSynth({
             noise: { type: "brown" },
@@ -204,14 +146,9 @@
 
         // --- JOY Synths ---
         const chimeSynth = new Tone.MetalSynth({ // Chime/Bell sound
-            frequency: 400,
-            envelope: { attack: 0.001, decay: 0.3, release: 0.1 },
-            harmonicity: 4.1,
-            modulationIndex: 32,
-            resonance: 2000,
-            octaves: 1.5,
+            frequency: 400, envelope: { attack: 0.001, decay: 0.3, release: 0.1 },
+            harmonicity: 4.1, modulationIndex: 32, resonance: 2000, octaves: 1.5,
         }).toDestination();
-
         const polySynth = new Tone.PolySynth(Tone.Synth, { // Happy Chords
             oscillator: { type: "sine" },
             envelope: { attack: 0.005, decay: 0.1, sustain: 0.05, release: 0.1 }
@@ -237,16 +174,50 @@
         const randomOutput = document.getElementById('randomOutput');
         const jumpscareContainer = document.getElementById('jumpscareContainer');
         const clickCounterDisplay = document.getElementById('clickCounter');
+        
+        // Modal Elementen
+        const obstacleOverlay = document.getElementById('obstacleOverlay');
+        const obstacleModal = document.getElementById('obstacleModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const closeModalButton = document.getElementById('closeModalButton');
+
         const defaultButtonText = 'ACTIVEER DE WILLEKEUR';
-        const defaultTitleText = 'De Dubbele Chaosknop';
+        const defaultTitleText = 'De Onvoorspelbare Chaosknop';
+        const defaultBodyBg = '#171717'; // De nieuwe neutrale basiskleur
         
         let clickCount = 0; 
+        let isCursorTrailActive = false;
+        let cursorTrailCleanup = null;
         
         button.textContent = defaultButtonText;
 
-        let isCursorTrailActive = false;
-        let cursorTrailCleanup = null;
         const getRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+
+        // Functie om de modale pop-up te tonen en de knop te deactiveren
+        const showObstacle = (title, message, isHorror = false) => {
+            button.disabled = true;
+            obstacleOverlay.style.display = 'flex';
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+
+            // Pas stijlen aan op basis van de modus
+            modalTitle.classList.toggle('text-red-500', isHorror);
+            modalTitle.classList.toggle('text-yellow-400', !isHorror);
+            obstacleModal.classList.toggle('border-red-500/50', isHorror);
+            obstacleModal.classList.toggle('border-yellow-500/50', !isHorror);
+            closeModalButton.classList.toggle('bg-red-800', isHorror);
+            closeModalButton.classList.toggle('bg-yellow-800', !isHorror);
+            closeModalButton.classList.toggle('hover:bg-red-700', isHorror);
+            closeModalButton.classList.toggle('hover:bg-yellow-700', !isHorror);
+        };
+
+        // Functie om de modale pop-up te verbergen en de knop te reactiveren
+        const hideObstacle = () => {
+            obstacleOverlay.style.display = 'none';
+            button.disabled = false;
+        };
+        closeModalButton.addEventListener('click', hideObstacle);
 
         // Functie om visuele elementen na een vertraging te resetten
         const resetVisuals = () => {
@@ -266,9 +237,8 @@
             if (button.textContent.length < 20) {
                 button.textContent = defaultButtonText;
             }
-            mainTitle.textContent = defaultTitleText;
             mainTitle.classList.remove('text-red-500/80', 'text-yellow-400', 'text-green-400');
-            mainTitle.classList.add('text-red-500/80'); // Default to Horror look
+            mainTitle.classList.add('text-red-500/80'); // Default kleur
 
             // Reset stijlen
             button.style.transform = 'scale(1)';
@@ -280,7 +250,7 @@
             body.style.filter = 'none'; 
             body.style.transform = 'none'; 
             body.style.overflow = 'auto'; 
-            body.style.backgroundColor = '#0d0d0d'; // Terug naar donker
+            body.style.backgroundColor = defaultBodyBg; // Terug naar neutrale basiskleur
             
             // Reset knoppositie
             button.style.position = ''; 
@@ -294,16 +264,6 @@
             randomOutput.innerHTML = '';
             randomOutput.className = 'mt-8 p-4 border border-red-900 rounded-xl shadow-inner transition duration-500 ease-in-out';
             randomOutput.style.backgroundColor = '#262626';
-        };
-
-        // Functie voor Jumpscare Tekst Flash
-        const textJumpscare = (message) => {
-            const jumpscareDiv = document.createElement('div');
-            jumpscareDiv.className = 'jumpscare-text';
-            jumpscareDiv.textContent = message;
-            jumpscareContainer.appendChild(jumpscareDiv);
-
-            setTimeout(() => { jumpscareDiv.remove(); }, 500); 
         };
 
         // Functie voor Jumpscare Afbeelding Flash (met geluid)
@@ -368,8 +328,8 @@
         // Functie voor Confetti
         const spawnConfetti = (count = 30, isHorror = true) => {
             const colors = isHorror 
-                ? ['#8b0000', '#cc0000', '#ff0000', '#606060'] // Rood en donkergrijs (Bloed)
-                : ['#fef08a', '#a7f3d0', '#67e8f9', '#f0abfc']; // Felle, vrolijke kleuren
+                ? ['#8b0000', '#cc0000', '#ff0000', '#606060']
+                : ['#fef08a', '#a7f3d0', '#67e8f9', '#f0abfc'];
 
             for (let i = 0; i < count; i++) {
                 const c = document.createElement('div');
@@ -384,16 +344,49 @@
 
 
         // ===============================================
+        // === GEDEELDE EVENTS (Teleportatie) ===
+        // ===============================================
+        const sharedEvents = [
+            {
+                name: "Knop Teleporteert",
+                action: (isHorror) => {
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold ${isHorror ? 'text-red-600' : 'text-yellow-400'}">⚠️ VASTGEZET: DE KNOP IS VERPLAATST!</div>`;
+
+                    button.style.position = 'fixed'; 
+                    button.style.zIndex = '1001';
+                    button.style.transition = 'all 0.1s ease-out'; 
+
+                    const newX = Math.random() * (window.innerWidth * 0.7 - button.offsetWidth);
+                    const newY = Math.random() * (window.innerHeight * 0.7 - button.offsetHeight);
+                    
+                    button.style.left = `${newX + window.innerWidth * 0.15}px`;
+                    button.style.top = `${newY + window.innerHeight * 0.15}px`;
+
+                    setTimeout(resetVisuals, 1000); 
+                }
+            }
+        ];
+
+
+        // ===============================================
         // === 1. HORROR EVENTS ===
         // ===============================================
 
         const horrorContentEvents = [
+            // NIEUW: Pop-up Obstakel
+            {
+                name: "Horror Pop-up",
+                action: () => {
+                    showObstacle("WAARSCHUWING! FOUTMELDING 666", "Een onbekende entiteit heeft de knop geblokkeerd. Sluit dit venster om de controle te herwinnen.", true);
+                    if (isAudioReady) { drone.triggerAttackRelease("C1", "1n"); }
+                }
+            },
             // Text Glitch Jumpscare
             {
                 name: "Text Glitch Jumpscare",
                 action: () => {
                     const messages = ["HIJ IS ACHTER JE", "STOP MET KLIKKEN", "ALLES IS EEN LEUGEN", "ZE HEBBEN JE GEZIEN"];
-                    textJumpscare(messages[Math.floor(Math.random() * messages.length)]);
+                    jumpscareImageFlash(messages[Math.floor(Math.random() * messages.length)]); 
                     if (isAudioReady) { drone.triggerAttackRelease("4n", Tone.now(), 0.5); }
                     randomOutput.innerHTML = `<div class="text-content text-2xl font-bold text-red-600">🚨 CORRUPTED INPUT: [DATA_LOSS]</div>`;
                 }
@@ -411,39 +404,18 @@
             {
                 name: "Rare Screen Flip",
                 action: () => {
-                    // 20% kans na 10 klikken
-                    if (clickCount >= 10 && Math.random() < 0.2) { 
+                    if (clickCount >= 10 && Math.random() < 0.1) { 
                         randomOutput.innerHTML = `<div class="text-content text-4xl font-extrabold text-red-700">SCHERM OMGEKEERD! (KLIK NOG EENS OM TE FIXEN)</div>`;
                         body.style.transform = 'scaleY(-1)';
                         body.style.filter = 'brightness(0.5) invert(1)';
                         if (isAudioReady) { drone.triggerAttackRelease("C#1", "1n"); }
                         setTimeout(resetVisuals, 1500); 
                     } else {
-                        // Creepy Fortune Cookie (Fallback)
                         const fortunes = ["De deur is vergrendeld. En je bent niet alleen.", "Wat je zoekt is niet hier, maar het heeft jou gevonden.", "Je hebt nog 7 dagen. Dan is de stilte voorbij."];
                         const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
                         randomOutput.innerHTML = `<div class="text-content text-2xl italic font-serif text-red-400">"${fortune}"</div>`;
                         randomOutput.style.backgroundColor = '#1e0707'; 
                     }
-                }
-            },
-            // Knop Teleporteert
-            {
-                name: "Knop Teleporteert",
-                action: () => {
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-red-600">⚠️ VASTGEZET: DE KNOP IS VERPLAATST!</div>`;
-
-                    button.style.position = 'fixed'; 
-                    button.style.zIndex = '1001';
-                    button.style.transition = 'none'; 
-
-                    const newX = Math.random() * (window.innerWidth * 0.8 - button.offsetWidth);
-                    const newY = Math.random() * (window.innerHeight * 0.8 - button.offsetHeight);
-                    
-                    button.style.left = `${newX + window.innerWidth * 0.1}px`;
-                    button.style.top = `${newY + window.innerHeight * 0.1}px`;
-
-                    setTimeout(resetVisuals, 500); 
                 }
             },
             // Glitch Knoptekst
@@ -468,32 +440,14 @@
                     setTimeout(() => { button.textContent = defaultButtonText; }, 550);
                 }
             },
-            // Onheilspellende Emoji's
-            {
-                name: "Onheilspellende Emoji's",
-                action: () => {
-                    const emojis = ["👁️", "💀", "🕯️", "🔪", "⛓️", "🌑", "🥀", "🕷️", "🩸", "🗿", "⚰️", "👻", "👹"];
-                    let emojiString = '';
-                    for (let i = 0; i < 5; i++) { emojiString += emojis[Math.floor(Math.random() * emojis.length)]; }
-                    randomOutput.innerHTML = `<div class="text-content text-5xl">${emojiString}</div>`;
-                    randomOutput.style.backgroundColor = '#1c0f0f'; 
-                }
-            }
         ];
 
         const horrorVisualEvents = [
             { name: "Sepia / Corruptie Filter", action: () => { body.style.filter = 'sepia(80%) hue-rotate(15deg)'; setTimeout(() => { body.style.filter = 'none'; }, 500); } },
-            { name: "Greyscale Filter & Contrast", action: () => { body.style.filter = 'grayscale(100%) contrast(150%)'; setTimeout(() => { body.style.filter = 'none'; }, 400); } },
             { name: "VHS Glitch", action: () => { body.classList.add('vhs-glitch'); setTimeout(() => { body.classList.remove('vhs-glitch'); }, 300); } },
-            { name: "Page Tilt (Schok)", action: () => { const tilt = Math.random() > 0.5 ? '1deg' : '-1deg'; body.style.transform = `rotate(${tilt})`; setTimeout(() => { body.style.transform = 'none'; }, 200); } },
             { name: "Creepy Drone Low", action: () => { if (isAudioReady) { drone.triggerAttackRelease("C1", "2n"); } } },
             { name: "Noise Burst Jumpscare", action: () => { if (isAudioReady) { screamSynth.triggerAttackRelease("32n"); } } },
-            { name: "Scroll Lock (Horror)", action: () => { body.style.overflow = 'hidden'; randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-red-700">JE ZIT VAST.</div>`; setTimeout(() => { body.style.overflow = 'auto'; randomOutput.innerHTML = `<p class="text-xl text-gray-500">Wachten op invoer...</p>`; }, 2000); } },
             { name: "Random Pulsing Border (Rood)", action: () => { mainContainer.style.setProperty('--border-color', '#ff0000'); mainContainer.classList.add('pulsing-border'); setTimeout(() => { mainContainer.classList.remove('pulsing-border'); mainContainer.style.removeProperty('--border-color'); }, 1000); } },
-            { name: "Haptic Vibrate (Schok)", action: () => { mainContainer.classList.add('haptic-vibrate'); setTimeout(() => { mainContainer.classList.remove('haptic-vibrate'); }, 200); } },
-            { name: "Cursor Error", action: () => { body.classList.add('cursor-error'); setTimeout(() => body.classList.remove('cursor-error'), 1000); } },
-            { name: "Confetti Regen (Bloed)", action: () => { spawnConfetti(30, true); } },
-            { name: "Cursor Trail (Horror)", action: () => { startCursorTrail(2000, true); } },
         ];
 
 
@@ -502,24 +456,32 @@
         // ===============================================
 
         const chaosContentEvents = [
+            // NIEUW: Pop-up Obstakel (Chaos versie)
+            {
+                name: "Chaos Pop-up",
+                action: () => {
+                    showObstacle("COMMUNICATIE GEBLOKKEERD", "Je zit vast in een lus! Klik op 'Sluit' om het patroon te doorbreken.", false);
+                    if (isAudioReady) { noiseChaos.triggerAttackRelease("4n"); }
+                }
+            },
             // Blitze Tekst
             {
                 name: "Blitze Tekst",
                 action: () => {
                     const messages = ["WAUW! Wat een klik!", "BLIJF KLIKKEN VOOR MEER!", "CHAOS CONTROLE!", "HALLO WERELD!"];
                     const message = messages[Math.floor(Math.random() * messages.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-4xl font-extrabold text-${getRandomColor()}-400">${message}</div>`;
+                    randomOutput.innerHTML = `<div class="text-content text-4xl font-extrabold text-yellow-400">${message}</div>`;
                     button.textContent = message.split(' ')[0];
                 }
             },
-            // Happy Fortune Cookie
+            // Chaos Fortune
             {
-                name: "Happy Fortune",
+                name: "Chaos Fortune",
                 action: () => {
-                    const fortunes = ["Jouw dag wordt net zo kleurrijk als deze knop.", "Een onverwachte traktatie wacht op je.", "Je hebt zojuist de hoogste score in chaos gehaald!"];
+                    const fortunes = ["Je dag wordt 100% onvoorspelbaar.", "De knop is nu jouw beste vriend (misschien).", "Bereid je voor op het onverwachte, want dit is het."];
                     const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-2xl italic font-sans text-green-400">"${fortune}"</div>`;
-                    randomOutput.style.backgroundColor = '#071e07'; 
+                    randomOutput.innerHTML = `<div class="text-content text-2xl italic font-sans text-yellow-400">"${fortune}"</div>`;
+                    randomOutput.style.backgroundColor = '#1e1e07'; 
                 }
             },
             // Knop Spin
@@ -531,39 +493,18 @@
                     setTimeout(() => { button.classList.remove('fast-spin'); }, 500); 
                 }
             },
-            // Knop Kleur
-            {
-                name: "Knop Kleurverschuiving",
-                action: () => {
-                    const color = getRandomColor(); 
-                    button.style.backgroundColor = color;
-                    button.style.color = (Math.random() > 0.5 ? 'white' : 'black');
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold" style="color: ${color}">NIEUWE KLEUR ONTGRENDELD!</div>`;
-                }
-            },
-            // Willekeurige Emoji's (vrolijk)
-            {
-                name: "Vrolijke Emoji's",
-                action: () => {
-                    const emojis = ["🥳", "✨", "🌈", "🦄", "🚀", "🎉", "🍕", "🎈", "💖"];
-                    let emojiString = '';
-                    for (let i = 0; i < 5; i++) { emojiString += emojis[Math.floor(Math.random() * emojis.length)]; }
-                    randomOutput.innerHTML = `<div class="text-content text-5xl">${emojiString}</div>`;
-                    randomOutput.style.backgroundColor = '#0f1c1c'; 
-                }
-            }
         ];
         
         const chaosVisualEvents = [
             { name: "Noise Burst Chaos", action: () => { if (isAudioReady) { noiseChaos.triggerAttackRelease("16n"); } } },
             { name: "Pluck Sound", action: () => { if (isAudioReady) { pluckSynth.triggerAttackRelease("C4", "8n"); } } },
             { name: "Fast Vibrate", action: () => { mainContainer.classList.add('haptic-vibrate'); setTimeout(() => { mainContainer.classList.remove('haptic-vibrate'); }, 100); } },
-            { name: "Background Flash Yellow", action: () => { body.style.backgroundColor = '#facc15'; setTimeout(() => body.style.backgroundColor = '#0d0d0d', 50); } },
             { name: "Confetti Regen", action: () => { spawnConfetti(20, false); } },
+            { name: "Cursor Trail", action: () => { startCursorTrail(1000, false); } },
         ];
         
         // ===============================================
-        // === 3. JOY EVENTS (NIEUW) ===
+        // === 3. JOY EVENTS ===
         // ===============================================
 
         const joyContentEvents = [
@@ -590,12 +531,6 @@
                 }
             },
             {
-                name: "Cursor Happy Trail",
-                action: () => {
-                    startCursorTrail(3000, false);
-                }
-            },
-            {
                 name: "Knop Groei",
                 action: () => {
                     button.style.transform = 'scale(1.2)';
@@ -606,7 +541,6 @@
         ];
 
         const joyVisualEvents = [
-            { name: "Background Flash Green", action: () => { body.style.backgroundColor = '#10b981'; setTimeout(() => body.style.backgroundColor = '#0d0d0d', 100); } },
             { name: "Chime High", action: () => { if (isAudioReady) { chimeSynth.triggerAttackRelease("C6", "32n"); } } },
             { name: "Major Chord", action: () => { if (isAudioReady) { polySynth.triggerAttackRelease(["D5", "F#5", "A5"], "8n"); } } },
             { name: "Bright Pulsing Border", action: () => { mainContainer.style.setProperty('--border-color', '#34d399'); mainContainer.classList.add('pulsing-border'); setTimeout(() => { mainContainer.classList.remove('pulsing-border'); mainContainer.style.removeProperty('--border-color'); }, 500); } },
@@ -636,57 +570,71 @@
             let isChaosMode = false;
             let isJoyMode = false;
 
-            if (modeChance < 0.4) { // 0% - 40%
+            if (modeChance < 0.4) {
                 isHorrorMode = true;
-            } else if (modeChance < 0.8) { // 40% - 80%
+            } else if (modeChance < 0.8) {
                 isChaosMode = true;
-            } else { // 80% - 100%
+            } else {
                 isJoyMode = true;
             }
             
             let currentContentEvents;
             let currentVisualEvents;
-            let modeName;
             let titleColorClass;
+            let modeBgColor;
 
             if (isHorrorMode) {
                 currentContentEvents = horrorContentEvents;
                 currentVisualEvents = horrorVisualEvents;
-                modeName = 'HORROR MODE';
                 titleColorClass = 'text-red-500/80';
+                modeBgColor = '#000000'; // Puur Zwart
             } else if (isChaosMode) {
                 currentContentEvents = chaosContentEvents;
                 currentVisualEvents = chaosVisualEvents;
-                modeName = 'CHAOS MODE';
                 titleColorClass = 'text-yellow-400';
+                modeBgColor = '#330033'; // Donker Paars
             } else if (isJoyMode) {
                 currentContentEvents = joyContentEvents;
                 currentVisualEvents = joyVisualEvents;
-                modeName = 'JOY MODE';
                 titleColorClass = 'text-green-400';
+                modeBgColor = '#003300'; // Donker Groen
             }
             
-            mainTitle.textContent = `${defaultTitleText} - ${modeName}`;
+            // 4. Achtergrondkleur wijzigen (Deel van de verrassing)
+            body.style.backgroundColor = modeBgColor;
+            mainTitle.classList.remove('text-red-500/80', 'text-yellow-400', 'text-green-400');
             mainTitle.classList.add(titleColorClass);
-            
-            // 4. Bepaal hoeveel visuele gebeurtenissen zullen plaatsvinden (2 tot 4 gebeurtenissen voor meer impact)
+
+            // Reset de achtergrondkleur na 500ms terug naar de neutrale basis
+            setTimeout(() => {
+                body.style.backgroundColor = defaultBodyBg;
+            }, 500); 
+
+            // 5. Bepaal hoeveel visuele gebeurtenissen zullen plaatsvinden (2 tot 4 gebeurtenissen voor meer impact)
             const numVisualEvents = Math.floor(Math.random() * 3) + 2; 
             
-            // 5. Voer de visuele/audio chaos uit
+            // 6. Voer de visuele/audio chaos uit
             for (let i = 0; i < numVisualEvents; i++) {
                 const randomIndex = Math.floor(Math.random() * currentVisualEvents.length);
                 currentVisualEvents[randomIndex].action(); 
             }
 
-            // 6. Voer altijd ÉÉN content/interactieve gebeurtenis uit
-            const contentIndex = Math.floor(Math.random() * currentContentEvents.length);
-            currentContentEvents[contentIndex].action();
+            // 7. Voer altijd ÉÉN content/interactieve gebeurtenis uit
+            // 10% kans op knopteleportatie in Horror/Chaos
+            if ((isHorrorMode || isChaosMode) && Math.random() < 0.1) {
+                sharedEvents[0].action(isHorrorMode);
+            } else {
+                const contentIndex = Math.floor(Math.random() * currentContentEvents.length);
+                currentContentEvents[contentIndex].action();
+            }
             
-            // 7. Voeg een kleine tijdelijke vergrendeling toe
-            button.disabled = true;
-            setTimeout(() => {
-                button.disabled = false;
-            }, 500); 
+            // 8. Voeg een kleine tijdelijke vergrendeling toe, TENZIJ een pop-up al de knop heeft gedeactiveerd
+            if (!button.disabled) {
+                 button.disabled = true;
+                setTimeout(() => {
+                    button.disabled = false;
+                }, 500); 
+            }
         });
     </script>
 </body>
