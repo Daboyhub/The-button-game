@@ -3,56 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>De Alles-in-één Chaosknop - Uiteindelijke Versie</title>
+    <title>De Dubbele Chaosknop - Drie Modus Editie</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Tone.js voor geluidseffecten -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Cutive+Mono&family=Handjet:wght@400&display=swap');
-
+        
         /* Standaard Lettertype en CSS Variabelen voor Lettertype Wissel */
         :root {
             --main-font: 'Inter', sans-serif;
+            cursor: default; /* Standaard cursor */
         }
         .font-inter { --main-font: 'Inter', sans-serif; }
-        .font-comic { --main-font: 'Comic Neue', cursive; }
-        .font-mono-special { --main-font: 'Cutive Mono', monospace; }
-        .font-handjet { --main-font: 'Handjet', cursive; }
+        .font-impact { font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif !important; }
 
         body {
             font-family: var(--main-font);
-            background-color: #f0f4f8;
+            background-color: #0d0d0d; /* Donkere achtergrond */
+            color: #d1d5db; /* Lichte tekst */
             transition: background-color 0.5s ease, filter 0.5s ease, transform 0.3s ease; 
             position: relative; 
-            overflow-x: hidden; /* Voorkom horizontale scrollbar door tilts */
+            overflow-x: hidden; 
         }
+
+        /* Aangepaste Cursors voor Horror */
+        .cursor-skull { cursor: url("https://www.google.com/intl/en_ALL/images/hand_f2536b0d1e57a3e790c8b394d2713e71.cur"), auto !important; }
+        /* Fallback voor skull, of een error icon */
+        .cursor-error { cursor: crosshair !important; } 
 
         /* Aangepaste Stijlen voor de Knop */
         #chaosButton {
             transition: all 0.15s ease-in-out;
             cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
             font-size: 2rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         #chaosButton:active {
             transform: scale(0.95);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
         }
 
-        /* Dynamische Klassen voor de Game */
+        /* Dynamische Klassen voor de Chaos */
         .fast-spin { animation: spin 0.5s infinite linear; }
-        .slow-pulse { animation: pulse 2s infinite ease-in-out; }
         .pulsing-border { animation: pulse-border 1s infinite alternate; }
-        
-        /* NIEUW: Haptische Trilling Animaties */
         .haptic-vibrate { animation: vibrate 0.1s infinite alternate; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes pulse-border { 0% { box-shadow: 0 0 0 0px var(--border-color, #f59e0b); } 100% { box-shadow: 0 0 10px 10px var(--border-color, #f59e0b); } }
+        @keyframes pulse-border { 0% { box-shadow: 0 0 0 0px var(--border-color, #ef4444); } 100% { box-shadow: 0 0 10px 10px var(--border-color, #ef4444); } }
         @keyframes vibrate { 
             0% { transform: translate(1px, 1px); } 
             25% { transform: translate(-1px, 2px); } 
@@ -61,6 +61,56 @@
             100% { transform: translate(1px, 1px); } 
         }
 
+        /* VHS Glitch Effect (Horror) */
+        .vhs-glitch { 
+            animation: glitch 0.05s infinite alternate; 
+        }
+
+        @keyframes glitch {
+            0% { transform: skewX(1deg) translateY(0px); }
+            50% { transform: skewX(-1deg) translateY(1px); }
+            100% { transform: skewX(0deg) translateY(-1px); }
+        }
+
+        /* Jumpscare Tekst Stijl (Horror) */
+        .jumpscare-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            font-size: 5rem;
+            font-weight: bold;
+            color: #ff0000;
+            text-shadow: 0 0 15px #ff0000;
+            opacity: 0;
+            z-index: 5000;
+            pointer-events: none;
+            animation: jumpscare-flash 0.1s linear 3 forwards; /* Korte, snelle flits */
+        }
+        @keyframes jumpscare-flash {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        /* Jumpscare Afbeelding Stijl (Horror) */
+        .jumpscare-image-flash {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1.5);
+            font-size: 15rem; /* Heel groot */
+            opacity: 0;
+            z-index: 6000; /* Hoger dan tekst */
+            pointer-events: none;
+            animation: image-jumpscare-flash 0.1s ease-in 2 forwards; /* Korte, snelle flits, twee keer herhalen */
+        }
+        @keyframes image-jumpscare-flash {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); filter: brightness(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.8); filter: brightness(2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); filter: brightness(1); }
+        }
+        
         /* Stijl voor de willekeurige content uitvoer */
         #randomOutput {
             min-height: 150px; 
@@ -68,57 +118,9 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            background-color: #fef9e7; 
-        }
-        #randomOutput .text-answer {
-            color: transparent; 
-            transition: all 0.3s ease-in-out;
-            cursor: help; 
-        }
-        #randomOutput .text-answer:hover {
-            color: #0c4a6e; 
-            text-shadow: 0 0 5px rgba(0,0,0,0.1);
+            background-color: #262626; /* Donkere output */
         }
         
-        .follower-box {
-            position: fixed;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            opacity: 0.9;
-            pointer-events: none; 
-            z-index: 1000;
-            transition: opacity 0.5s;
-        }
-        /* Canvas Styling */
-        .ephemeral-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 999;
-            opacity: 1;
-            transition: opacity 1s ease-out;
-        }
-        
-        /* Confetti Styling */
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            pointer-events: none;
-            z-index: 2000;
-            animation: fall 3s ease-in forwards;
-        }
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-
-        /* NIEUW: Cursor Trail Styling */
         .trail {
             position: fixed;
             width: 5px;
@@ -130,53 +132,91 @@
             transition: opacity 1s, transform 1s;
         }
 
+        /* Stijl voor Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            z-index: 999;
+            transform-origin: 100% 100%;
+            animation: confetti-fall 3s forwards;
+            border-radius: 2px;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+        }
+
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 font-inter">
 
-    <div id="mainContainer" class="w-full max-w-lg bg-white rounded-3xl p-6 md:p-10 shadow-2xl text-center z-50 transition-all">
-        <h1 id="mainTitle" class="text-4xl font-extrabold mb-4 text-gray-800">De Alles-in-één Chaosknop</h1>
-        <p class="text-gray-600 mb-8">Druk er nu op.</p>
+    <!-- Container voor Jumpscare Tekst -->
+    <div id="jumpscareContainer"></div>
+
+    <div id="mainContainer" class="w-full max-w-lg bg-[#171717] rounded-3xl p-6 md:p-10 shadow-2xl text-center z-50 transition-all border border-red-900/50">
+        <h1 id="mainTitle" class="text-4xl font-extrabold mb-4 text-red-500/80">De Dubbele Chaosknop</h1>
+        <p class="text-gray-400 mb-2">Druk. En ervaar pure willekeur: chaos, horror of... vreugde?</p>
+
+        <!-- Chaos Teller -->
+        <div id="clickCounter" class="text-lg font-bold mb-6 text-gray-500">
+            Klikken: 0
+        </div>
 
         <!-- De Hoofdknop -->
-        <button id="chaosButton" class="w-full py-6 rounded-2xl text-white font-bold bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/50">
-            DRUK OP DE CHAOSKNOP
+        <button id="chaosButton" class="w-full py-6 rounded-2xl font-bold bg-red-800 hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-500/50 text-gray-200">
+            ACTIVEER DE WILLEKEUR
         </button>
 
         <!-- Dynamisch Willekeurig Content Uitvoergebied -->
-        <div id="randomOutput" class="mt-8 p-4 border border-indigo-200 rounded-xl shadow-inner transition duration-500 ease-in-out">
-            <p class="text-xl text-gray-500">Wachten op invoer voor maximale chaos...</p>
+        <div id="randomOutput" class="mt-8 p-4 border border-red-900 rounded-xl shadow-inner transition duration-500 ease-in-out">
+            <p class="text-xl text-gray-500">Wachten op invoer...</p>
         </div>
     </div>
 
     <script>
         // === Tone.js Setup ===
         let isAudioReady = false;
-        // Standaard synths
-        const synth = new Tone.Synth().toDestination();
-        const noise = new Tone.NoiseSynth({
-            noise: { type: "white" },
-            envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 }
-        }).toDestination();
         
-        // Synths voor gekke geluiden
-        const pluck = new Tone.PluckSynth().toDestination(); 
-        const amSynth = new Tone.AMSynth({ 
+        // --- Horror Synths ---
+        const drone = new Tone.FMSynth({
+            harmonicity: 3.01,
+            modulationIndex: 14,
+            oscillator: { type: "triangle" },
+            envelope: { attack: 0.8, decay: 0.3, sustain: 0.7, release: 2.0 },
+            modulation: { type: "square" },
+            modulationEnvelope: { attack: 0.01, decay: 0.01, sustain: 1, release: 0.5 }
+        }).toDestination();
+        const screamSynth = new Tone.NoiseSynth({
+            noise: { type: "brown" },
+            envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.05 },
+            volume: -10 
+        }).toDestination();
+
+        // --- Chaos Synths ---
+        const pluckSynth = new Tone.PluckSynth().toDestination(); 
+        const noiseChaos = new Tone.NoiseSynth({ 
+            noise: { type: "pink" },
+            envelope: { attack: 0.005, decay: 0.2, sustain: 0, release: 0.1 }
+        }).toDestination();
+
+        // --- JOY Synths ---
+        const chimeSynth = new Tone.MetalSynth({ // Chime/Bell sound
+            frequency: 400,
+            envelope: { attack: 0.001, decay: 0.3, release: 0.1 },
+            harmonicity: 4.1,
+            modulationIndex: 32,
+            resonance: 2000,
+            octaves: 1.5,
+        }).toDestination();
+
+        const polySynth = new Tone.PolySynth(Tone.Synth, { // Happy Chords
             oscillator: { type: "sine" },
-            envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.5 },
-            modulation: { type: "sawtooth" }
+            envelope: { attack: 0.005, decay: 0.1, sustain: 0.05, release: 0.1 }
         }).toDestination();
-        
-        const memSynth = new Tone.MembraneSynth({
-            pitchDecay: 0.005,
-            octaves: 0.8,
-            envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 0.4 },
-        }).toDestination();
-        
-        const monoSynth = new Tone.MonoSynth({
-            envelope: { attack: 0.005, decay: 0.2, sustain: 0.4, release: 0.8 },
-            filterEnvelope: { attack: 0.001, decay: 0.1, sustain: 0.5, release: 0.5, basePath: 500, octaves: 4 },
-        }).toDestination();
+
 
         const startAudioContext = async () => {
             if (!isAudioReady) {
@@ -195,22 +235,21 @@
         const mainTitle = document.getElementById('mainTitle');
         const mainContainer = document.getElementById('mainContainer');
         const randomOutput = document.getElementById('randomOutput');
-        const defaultButtonText = 'DRUK OP DE CHAOSKNOP';
-        const defaultTitleText = 'De Alles-in-één Chaosknop';
+        const jumpscareContainer = document.getElementById('jumpscareContainer');
+        const clickCounterDisplay = document.getElementById('clickCounter');
+        const defaultButtonText = 'ACTIVEER DE WILLEKEUR';
+        const defaultTitleText = 'De Dubbele Chaosknop';
+        
+        let clickCount = 0; 
         
         button.textContent = defaultButtonText;
 
-        // Variabele voor Cursor Trail
         let isCursorTrailActive = false;
         let cursorTrailCleanup = null;
-
-
-        // Functie om een willekeurige HEX-kleur te genereren
         const getRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 
         // Functie om visuele elementen na een vertraging te resetten
         const resetVisuals = () => {
-            // Stop de Cursor Trail als deze actief is
             if (isCursorTrailActive && cursorTrailCleanup) {
                 cursorTrailCleanup();
                 isCursorTrailActive = false;
@@ -218,26 +257,30 @@
             }
 
             // Verwijder alle dynamische klassen en filters
-            body.classList.remove('slow-pulse', 'font-comic', 'font-mono-special', 'font-handjet');
-            body.classList.add('font-inter'); // Reset naar standaard lettertype
-            button.classList.remove('fast-spin');
-            mainContainer.classList.remove('pulsing-border', 'haptic-vibrate'); // Reset Border en Trilling
+            body.classList.remove('vhs-glitch', 'cursor-error', 'cursor-skull', 'font-impact');
+            mainContainer.classList.remove('pulsing-border', 'haptic-vibrate'); 
             mainContainer.style.removeProperty('--border-color'); 
             mainTitle.style.textShadow = 'none'; 
             
             // Reset knop- en titeltekst 
-            button.textContent = defaultButtonText;
+            if (button.textContent.length < 20) {
+                button.textContent = defaultButtonText;
+            }
             mainTitle.textContent = defaultTitleText;
+            mainTitle.classList.remove('text-red-500/80', 'text-yellow-400', 'text-green-400');
+            mainTitle.classList.add('text-red-500/80'); // Default to Horror look
 
             // Reset stijlen
             button.style.transform = 'scale(1)';
             button.style.fontSize = '2rem';
-            button.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
+            button.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.5)';
+            button.style.backgroundColor = '#b91c1c'; // Terug naar standaard rood
 
             // Reset voor chaos-effecten
             body.style.filter = 'none'; 
             body.style.transform = 'none'; 
             body.style.overflow = 'auto'; 
+            body.style.backgroundColor = '#0d0d0d'; // Terug naar donker
             
             // Reset knoppositie
             button.style.position = ''; 
@@ -249,39 +292,53 @@
         // Functie om bestaande content te wissen
         const clearContent = () => {
             randomOutput.innerHTML = '';
-            randomOutput.className = 'mt-8 p-4 border border-indigo-200 rounded-xl shadow-inner transition duration-500 ease-in-out';
-            randomOutput.style.backgroundColor = '#fef9e7';
+            randomOutput.className = 'mt-8 p-4 border border-red-900 rounded-xl shadow-inner transition duration-500 ease-in-out';
+            randomOutput.style.backgroundColor = '#262626';
         };
 
-        // Functie voor Confetti Regen
-        const spawnConfetti = (count = 50) => {
-            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4'];
-            for (let i = 0; i < count; i++) {
-                const c = document.createElement('div');
-                c.className = 'confetti';
-                c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                c.style.left = `${Math.random() * 100}vw`;
-                c.style.animationDelay = `${Math.random() * 0.5}s`;
-                document.body.appendChild(c);
-                setTimeout(() => c.remove(), 3000); 
-            }
+        // Functie voor Jumpscare Tekst Flash
+        const textJumpscare = (message) => {
+            const jumpscareDiv = document.createElement('div');
+            jumpscareDiv.className = 'jumpscare-text';
+            jumpscareDiv.textContent = message;
+            jumpscareContainer.appendChild(jumpscareDiv);
+
+            setTimeout(() => { jumpscareDiv.remove(); }, 500); 
         };
 
-        // Functie voor Cursor Trail
-        const startCursorTrail = (duration = 3000) => {
+        // Functie voor Jumpscare Afbeelding Flash (met geluid)
+        const jumpscareImageFlash = (content) => {
+            const jumpscareDiv = document.createElement('div');
+            jumpscareDiv.className = 'jumpscare-image-flash';
+            jumpscareDiv.innerHTML = content;
+            jumpscareContainer.appendChild(jumpscareDiv);
+
+            if (isAudioReady) { screamSynth.triggerAttackRelease("32n"); }
+            
+            setTimeout(() => { jumpscareDiv.remove(); }, 500); 
+        };
+
+        // Functie voor Cursor Trail 
+        const startCursorTrail = (duration = 2000, isHorror = true) => {
             if (isCursorTrailActive) return;
             isCursorTrailActive = true;
-            randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-green-700">✨ Cursorspoor Geactiveerd! Beweeg de muis!</div>`;
+            const trailMessage = isHorror 
+                ? `<div class="text-content text-xl font-bold text-red-500">✨ Cursorspoor Geactiveerd. Beweeg... snel.</div>` 
+                : `<div class="text-content text-xl font-bold text-green-400">🎉 Feestelijke Vuurspoor!</div>`;
+            randomOutput.innerHTML = trailMessage;
 
             const createTrailElement = (x, y) => {
                 const trail = document.createElement('div');
                 trail.className = 'trail';
-                trail.style.backgroundColor = getRandomColor();
+                if (isHorror) {
+                    trail.style.backgroundColor = Math.random() < 0.5 ? '#ff0000' : '#00ff00';
+                } else {
+                    trail.style.backgroundColor = getRandomColor(); 
+                }
                 trail.style.left = `${x}px`;
                 trail.style.top = `${y}px`;
                 document.body.appendChild(trail);
 
-                // Fade out and remove
                 setTimeout(() => {
                     trail.style.opacity = '0';
                     trail.style.transform = 'scale(0)';
@@ -290,7 +347,6 @@
             };
 
             const trailHandler = (e) => {
-                // Spawn een trail-element met een willekeurige kans
                 if (Math.random() < 0.5) {
                     createTrailElement(e.clientX, e.clientY);
                 }
@@ -309,195 +365,74 @@
             };
         };
 
+        // Functie voor Confetti
+        const spawnConfetti = (count = 30, isHorror = true) => {
+            const colors = isHorror 
+                ? ['#8b0000', '#cc0000', '#ff0000', '#606060'] // Rood en donkergrijs (Bloed)
+                : ['#fef08a', '#a7f3d0', '#67e8f9', '#f0abfc']; // Felle, vrolijke kleuren
 
-        // --- CONTENT/INTERACTIEVE GEBEURTENISSEN (Eén per klik) ---
-        const contentEvents = [
-            // Bestaande Content Gebeurtenissen
-            {
-                name: "Willekeurige Grappige Quote",
-                action: () => {
-                    const quotes = ["Ik dacht altijd dat ik besluiteloos was, maar nu ben ik er niet zo zeker van.", "Als je bent wat je eet, dan ben ik voornamelijk pizza en existentiële angst.", "Het mitochondrion is de krachtcentrale van de cel. (Verplichte meme-inhoud.)"];
-                    const quote = quotes[Math.floor(Math.random() * quotes.length)];
-                    randomOutput.innerHTML = `<p class="text-content text-2xl italic font-serif text-gray-800">"${quote}"</p>`;
-                }
-            },
-            {
-                name: "Meme Plaatsaanduiding Foto",
-                action: () => {
-                    const placeholders = [{ w: 300, h: 300, text: "Wacht, dat is illegaal" }, { w: 400, h: 200, text: "Onverwacht Item in Inpakgebied" }];
-                    const item = placeholders[Math.floor(Math.random() * placeholders.length)];
-                    const imageUrl = `https://placehold.co/${item.w}x${item.h}/1e40a0/ffffff?text=${item.text.replace(/ /g, '+')}`;
-                    randomOutput.innerHTML = `<img src="${imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/300x300/ff0000/ffffff?text=Fout+bij+laden+afbeelding'" alt="Grappige Plaatsaanduiding" title="${item.text}">`;
-                }
-            },
-            {
-                name: "ASCII Kunst Verrassing",
-                action: () => {
-                    const asciiArt = [`<pre class="font-mono text-lg text-green-700"> ( •_•)\n ( ง )ง\n /  \\</pre>`, `<pre class="font-mono text-base text-purple-700"> _/|\n/  |\n|  |\n|  |\n|_/\n</pre>`];
-                    const art = asciiArt[Math.floor(Math.random() * asciiArt.length)];
-                    randomOutput.innerHTML = `<div class="text-center">${art}</div>`;
-                    randomOutput.style.backgroundColor = '#f3e8ff'; 
-                }
-            },
-            {
-                name: "Onverwacht Leuk Weetje",
-                action: () => {
-                    const facts = ["Een groep flamingo's wordt een 'flamboyance' genoemd.", "Octopussen hebben drie harten.", "Honing bederft nooit."];
-                    const fact = facts[Math.floor(Math.random() * facts.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-teal-700">🤯 Leuk Weetje:</div><p class="text-base text-teal-600">${fact}</p>`;
-                    randomOutput.style.backgroundColor = '#ccfbf1'; 
-                }
-            },
-            {
-                name: "Hartelijke Aanmoediging",
-                action: () => {
-                    const messages = ["Je doet het geweldig! Ga zo door!", "Iemand is vandaag trots op je (dat ben ik!).", "Je creativiteit schijnt helderder dan een supernova!"];
-                    const message = messages[Math.floor(Math.random() * messages.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-2xl font-extrabold text-pink-600">💖 Positieve Vibes!</div><p class="text-xl text-pink-500">${message}</p>`;
-                    randomOutput.style.backgroundColor = '#fce7f6'; 
-                }
-            },
-            {
-                name: "Simpele Mop/Riddle",
-                action: () => {
-                    const jokes = [{ q: "Waarom won de vogelverschrikker een prijs?", a: "Omdat hij uitstekend was in zijn vak!" }, { q: "Wat noem je een nep-noedel?", a: "Een impasta." }];
-                    const joke = jokes[Math.floor(Math.random() * jokes.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-center"><p class="text-xl font-medium text-blue-700 mb-2">❓ ${joke.q}</p><p class="text-sm italic text-blue-500 mt-2">(Zweef over de tekst hieronder voor het antwoord!)</p><p class="text-answer font-bold text-lg">ANTWOORD: ${joke.a}</p></div>`;
-                    randomOutput.style.backgroundColor = '#dbeafe'; 
-                }
-            },
-            {
-                name: "Piratentaal",
-                action: () => {
-                    const phrases = ["Ahoy, maatje! Licht de zeilen!", "Waar is de rum, landrot?", "Aarrr! Dat is een fijne klik die je daar hebt."];
-                    const phrase = phrases[Math.floor(Math.random() * phrases.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-2xl font-extrabold text-amber-700">🏴‍☠️ Piratenmodus:</div><p class="text-xl italic text-amber-600">${phrase}</p>`;
-                    randomOutput.style.backgroundColor = '#fef3c7'; 
-                }
-            },
-            {
-                name: "Programmeurshumor",
-                action: () => {
-                    const jokes = ["Waarom geven programmeurs de voorkeur aan dark mode? Omdat licht insecten aantrekt (bugs)!", "Er zijn 10 soorten mensen op de wereld: zij die binair begrijpen, en zij die dat niet doen."];
-                    const joke = jokes[Math.floor(Math.random() * jokes.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-mono text-red-700">🐛 Foutmelding:</div><p class="text-base text-red-600">${joke}</p>`;
-                    randomOutput.style.backgroundColor = '#fee2e2'; 
-                }
-            },
-            {
-                name: "Willekeurige Emoji's",
-                action: () => {
-                    const emojis = ["🚀", "🍕", "🦄", "👽", "👾", "✨", "🔥", "🌈", "👑", "🌮", "🗿", "💀", "🧐"];
-                    let emojiString = '';
-                    for (let i = 0; i < 5; i++) {
-                        emojiString += emojis[Math.floor(Math.random() * emojis.length)];
-                    }
-                    randomOutput.innerHTML = `<div class="text-content text-5xl">${emojiString}</div>`;
-                    randomOutput.style.backgroundColor = '#e0f2f1'; 
-                }
-            },
-            // Interactieve Gebeurtenissen
-            {
-                name: "Vervelende Volger",
-                action: () => {
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-gray-700">👀 Pas op! Iets volgt je...</div>`;
-                    const follower = document.createElement('div');
-                    follower.className = 'follower-box shadow-xl';
-                    follower.style.backgroundColor = getRandomColor();
-                    follower.style.left = `${Math.random() * 90}vw`;
-                    follower.style.top = `${Math.random() * 90}vh`;
-                    follower.innerHTML = '🚨';
-                    document.body.appendChild(follower);
+            for (let i = 0; i < count; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                c.style.left = `${Math.random() * 100}vw`;
+                c.style.animationDelay = `${Math.random() * 0.5}s`;
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 3000); 
+            }
+        };
 
-                    const moveFollower = (e) => {
-                        const speed = 0.05; 
-                        const rect = follower.getBoundingClientRect();
-                        const fX = rect.left;
-                        const fY = rect.top;
-                        
-                        const newX = fX + (e.clientX - fX) * speed;
-                        const newY = fY + (e.clientY - fY) * speed;
 
-                        follower.style.left = `${newX}px`;
-                        follower.style.top = `${newY}px`;
-                    };
+        // ===============================================
+        // === 1. HORROR EVENTS ===
+        // ===============================================
 
-                    document.addEventListener('mousemove', moveFollower);
-
-                    setTimeout(() => {
-                        follower.style.opacity = '0';
-                        document.removeEventListener('mousemove', moveFollower);
-                        setTimeout(() => follower.remove(), 500);
-                    }, 3000);
+        const horrorContentEvents = [
+            // Text Glitch Jumpscare
+            {
+                name: "Text Glitch Jumpscare",
+                action: () => {
+                    const messages = ["HIJ IS ACHTER JE", "STOP MET KLIKKEN", "ALLES IS EEN LEUGEN", "ZE HEBBEN JE GEZIEN"];
+                    textJumpscare(messages[Math.floor(Math.random() * messages.length)]);
+                    if (isAudioReady) { drone.triggerAttackRelease("4n", Tone.now(), 0.5); }
+                    randomOutput.innerHTML = `<div class="text-content text-2xl font-bold text-red-600">🚨 CORRUPTED INPUT: [DATA_LOSS]</div>`;
                 }
             },
+            // SPIDER JUMPSCARE
             {
-                name: "Verborgen Bericht Pop-up",
+                name: "Spider Jumpscare",
                 action: () => {
-                    const messages = ["Je hebt me gevonden!", "De taart is een leugen.", "Hallo vanuit de hoek!", "Niet op mij klikken!"];
-                    const msg = messages[Math.floor(Math.random() * messages.length)];
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-gray-700">Er is een mysterieuze doos verschenen!</div>`;
-
-                    const popup = document.createElement('div');
-                    popup.className = 'absolute p-2 bg-yellow-400 text-black text-xs font-bold rounded-lg shadow-xl cursor-pointer hover:scale-105 transition';
-                    popup.style.left = `${Math.random() * 80 + 10}vw`; 
-                    popup.style.top = `${Math.random() * 80 + 10}vh`; 
-                    popup.style.zIndex = '1000';
-                    popup.innerHTML = `[Klik om te sluiten: ${msg}]`;
-                    
-                    popup.onclick = () => { popup.remove(); };
-                    document.body.appendChild(popup);
-
-                    setTimeout(() => popup.remove(), 5000);
+                    const spiderEmoji = '🕷️'; 
+                    jumpscareImageFlash(spiderEmoji); 
+                    randomOutput.innerHTML = `<div class="text-content text-3xl font-bold text-red-800">!!! SYSTEM OVERLOAD: WEBZ FOUND !!!</div>`;
                 }
             },
+            // ZELDZAAM: Omgekeerd Scherm
             {
-                name: "Vluchtige Canvas Kunst",
+                name: "Rare Screen Flip",
                 action: () => {
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-indigo-700">🖼️ Abstracte Kunst gegenereerd! (Kijk rond)</div>`;
-                    
-                    const canvas = document.createElement('canvas');
-                    canvas.className = 'ephemeral-canvas';
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-                    document.body.appendChild(canvas);
-                    
-                    const ctx = canvas.getContext('2d');
-                    
-                    ctx.fillStyle = getRandomColor();
-                    ctx.globalAlpha = 0.5; 
-
-                    const centerX = Math.random() * canvas.width;
-                    const centerY = Math.random() * canvas.height;
-                    const size = Math.random() * 100 + 50;
-
-                    if (Math.random() > 0.5) {
-                        ctx.beginPath();
-                        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
-                        ctx.fill();
+                    // 20% kans na 10 klikken
+                    if (clickCount >= 10 && Math.random() < 0.2) { 
+                        randomOutput.innerHTML = `<div class="text-content text-4xl font-extrabold text-red-700">SCHERM OMGEKEERD! (KLIK NOG EENS OM TE FIXEN)</div>`;
+                        body.style.transform = 'scaleY(-1)';
+                        body.style.filter = 'brightness(0.5) invert(1)';
+                        if (isAudioReady) { drone.triggerAttackRelease("C#1", "1n"); }
+                        setTimeout(resetVisuals, 1500); 
                     } else {
-                        ctx.translate(centerX, centerY);
-                        ctx.rotate(Math.random() * Math.PI);
-                        ctx.fillRect(-size / 2, -size / 2, size, size);
+                        // Creepy Fortune Cookie (Fallback)
+                        const fortunes = ["De deur is vergrendeld. En je bent niet alleen.", "Wat je zoekt is niet hier, maar het heeft jou gevonden.", "Je hebt nog 7 dagen. Dan is de stilte voorbij."];
+                        const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+                        randomOutput.innerHTML = `<div class="text-content text-2xl italic font-serif text-red-400">"${fortune}"</div>`;
+                        randomOutput.style.backgroundColor = '#1e0707'; 
                     }
-
-                    setTimeout(() => {
-                        canvas.style.opacity = '0';
-                        setTimeout(() => canvas.remove(), 1000);
-                    }, 1500);
                 }
             },
+            // Knop Teleporteert
             {
                 name: "Knop Teleporteert",
                 action: () => {
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-red-600">⚠️ Knop verplaatst! Klik snel!</div>`;
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-red-600">⚠️ VASTGEZET: DE KNOP IS VERPLAATST!</div>`;
 
-                    const originalPosition = {
-                        position: button.style.position,
-                        left: button.style.left,
-                        top: button.style.top,
-                    };
-                    
                     button.style.position = 'fixed'; 
                     button.style.zIndex = '1001';
                     button.style.transition = 'none'; 
@@ -508,36 +443,19 @@
                     button.style.left = `${newX + window.innerWidth * 0.1}px`;
                     button.style.top = `${newY + window.innerHeight * 0.1}px`;
 
-                    setTimeout(() => {
-                        button.style.position = originalPosition.position;
-                        button.style.left = originalPosition.left;
-                        button.style.top = originalPosition.top;
-                        button.style.zIndex = '';
-                        button.style.transition = 'all 0.15s ease-in-out'; 
-                    }, 500);
+                    setTimeout(resetVisuals, 500); 
                 }
             },
-            // NIEUW: Cursor Trail
-            {
-                name: "Cursor Trail",
-                action: () => {
-                    startCursorTrail(2000); // 2 seconden de cursor trail
-                }
-            },
-            // NIEUW: Glitch Knoptekst
+            // Glitch Knoptekst
             {
                 name: "Glitch Button Text",
                 action: () => {
-                    randomOutput.innerHTML = `<div class="text-content text-xl font-mono text-gray-900">SYSTEM.TXT_CORRUPTION_DETECTED_</div>`;
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-mono text-gray-400">SYSTEM.TXT_CORRUPTION_DETECTED_</div>`;
                     const glitch = (text) => {
                         let newText = '';
                         const chars = '█▓▒░▖▗▘▙▚▛▜▝▞▟$@#%^&*()_+=-';
                         for (let i = 0; i < text.length; i++) {
-                            if (Math.random() < 0.3) {
-                                newText += chars[Math.floor(Math.random() * chars.length)];
-                            } else {
-                                newText += text[i];
-                            }
+                            if (Math.random() < 0.4) { newText += chars[Math.floor(Math.random() * chars.length)]; } else { newText += text[i]; }
                         }
                         return newText;
                     };
@@ -545,133 +463,156 @@
                     const originalText = button.textContent;
                     button.textContent = glitch(originalText);
 
-                    setTimeout(() => {
-                        button.textContent = originalText;
-                    }, 200);
-                    setTimeout(() => {
-                         // Glitch opnieuw voor extra chaos
-                         button.textContent = glitch(originalText);
-                    }, 350);
-                    setTimeout(() => {
-                        button.textContent = defaultButtonText;
-                    }, 550);
+                    setTimeout(() => { button.textContent = originalText; }, 200);
+                    setTimeout(() => { button.textContent = glitch(originalText); }, 350);
+                    setTimeout(() => { button.textContent = defaultButtonText; }, 550);
+                }
+            },
+            // Onheilspellende Emoji's
+            {
+                name: "Onheilspellende Emoji's",
+                action: () => {
+                    const emojis = ["👁️", "💀", "🕯️", "🔪", "⛓️", "🌑", "🥀", "🕷️", "🩸", "🗿", "⚰️", "👻", "👹"];
+                    let emojiString = '';
+                    for (let i = 0; i < 5; i++) { emojiString += emojis[Math.floor(Math.random() * emojis.length)]; }
+                    randomOutput.innerHTML = `<div class="text-content text-5xl">${emojiString}</div>`;
+                    randomOutput.style.backgroundColor = '#1c0f0f'; 
                 }
             }
         ];
 
-        // --- VISUELE/AUDIO GEBEURTENISSEN (1-3 per klik) ---
-        const visualEvents = [
-            // Visuele Gebeurtenissen
-            { name: "Knop Kleurverschuiving", action: () => { const color = getRandomColor(); button.style.backgroundColor = color; button.style.color = 'white'; } },
-            { name: "Korte Achtergrondflits", action: () => { const color = getRandomColor(); body.style.backgroundColor = color; setTimeout(() => { body.style.backgroundColor = '#f0f4f8'; }, 300); } },
-            { name: "Text Size Jolt", action: () => { const randomSize = Math.floor(Math.random() * 20) + 16; button.style.fontSize = `${randomSize}px`; } },
-            { name: "Quick Spin and Rebound", action: () => { button.classList.add('fast-spin'); setTimeout(() => { button.classList.remove('fast-spin'); }, 800); } },
-            
-            // CSS Filter Gebeurtenissen
-            { name: "Invert Colors", action: () => { body.style.filter = 'invert(100%)'; setTimeout(() => { body.style.filter = 'none'; }, 400); } },
-            { name: "Random Blur", action: () => { const blurAmount = Math.floor(Math.random() * 5) + 2; body.style.filter = `blur(${blurAmount}px)`; setTimeout(() => { body.style.filter = 'none'; }, 500); } },
-            { name: "Page Tilt", action: () => { const tilt = Math.random() > 0.5 ? '5deg' : '-5deg'; body.style.transform = `rotate(${tilt})`; setTimeout(() => { body.style.transform = 'none'; }, 300); } },
-            
-            // Audio Gebeurtenissen
-            { name: "Sci-Fi Zap Sound", action: () => { if (isAudioReady) { synth.triggerAttackRelease("C5", "8n"); } } },
-            { name: "Low Riser Sound", action: () => { if (isAudioReady) { noise.triggerAttackRelease("4n", "+0.1"); } } },
-            { name: "Random High Note Sound", action: () => { if (isAudioReady) { const notes = ["C6", "E6", "G6", "B6", "D7"]; const randomNote = notes[Math.floor(Math.random() * notes.length)]; synth.triggerAttackRelease(randomNote, "16n"); } } },
-            { name: "Cartoon Whoop Sound", action: () => { if (isAudioReady) { pluck.triggerAttackRelease("A5", "16n", Tone.now(), 0.8); pluck.set({ "dampening": 4000 }); } } },
-            { name: "Sad Trombone Sound", action: () => { if (isAudioReady) { monoSynth.triggerAttackRelease(["C3", "B2", "Bb2", "A2"], "2n"); } } },
-            { name: "Meme Bass Hit Sound", action: () => { if (isAudioReady) { memSynth.triggerAttackRelease("C1", "8n"); } } },
+        const horrorVisualEvents = [
+            { name: "Sepia / Corruptie Filter", action: () => { body.style.filter = 'sepia(80%) hue-rotate(15deg)'; setTimeout(() => { body.style.filter = 'none'; }, 500); } },
+            { name: "Greyscale Filter & Contrast", action: () => { body.style.filter = 'grayscale(100%) contrast(150%)'; setTimeout(() => { body.style.filter = 'none'; }, 400); } },
+            { name: "VHS Glitch", action: () => { body.classList.add('vhs-glitch'); setTimeout(() => { body.classList.remove('vhs-glitch'); }, 300); } },
+            { name: "Page Tilt (Schok)", action: () => { const tilt = Math.random() > 0.5 ? '1deg' : '-1deg'; body.style.transform = `rotate(${tilt})`; setTimeout(() => { body.style.transform = 'none'; }, 200); } },
+            { name: "Creepy Drone Low", action: () => { if (isAudioReady) { drone.triggerAttackRelease("C1", "2n"); } } },
+            { name: "Noise Burst Jumpscare", action: () => { if (isAudioReady) { screamSynth.triggerAttackRelease("32n"); } } },
+            { name: "Scroll Lock (Horror)", action: () => { body.style.overflow = 'hidden'; randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-red-700">JE ZIT VAST.</div>`; setTimeout(() => { body.style.overflow = 'auto'; randomOutput.innerHTML = `<p class="text-xl text-gray-500">Wachten op invoer...</p>`; }, 2000); } },
+            { name: "Random Pulsing Border (Rood)", action: () => { mainContainer.style.setProperty('--border-color', '#ff0000'); mainContainer.classList.add('pulsing-border'); setTimeout(() => { mainContainer.classList.remove('pulsing-border'); mainContainer.style.removeProperty('--border-color'); }, 1000); } },
+            { name: "Haptic Vibrate (Schok)", action: () => { mainContainer.classList.add('haptic-vibrate'); setTimeout(() => { mainContainer.classList.remove('haptic-vibrate'); }, 200); } },
+            { name: "Cursor Error", action: () => { body.classList.add('cursor-error'); setTimeout(() => body.classList.remove('cursor-error'), 1000); } },
+            { name: "Confetti Regen (Bloed)", action: () => { spawnConfetti(30, true); } },
+            { name: "Cursor Trail (Horror)", action: () => { startCursorTrail(2000, true); } },
+        ];
 
-            // Tekst/Font Gebeurtenissen
+
+        // ===============================================
+        // === 2. CHAOS EVENTS ===
+        // ===============================================
+
+        const chaosContentEvents = [
+            // Blitze Tekst
             {
-                name: "Reverse Text",
+                name: "Blitze Tekst",
                 action: () => {
-                    const reverseString = (str) => str.split('').reverse().join('');
-                    button.textContent = reverseString(defaultButtonText);
-                    mainTitle.textContent = reverseString(mainTitle.textContent);
-
-                    setTimeout(() => {
-                        button.textContent = defaultButtonText;
-                        mainTitle.textContent = defaultTitleText;
-                    }, 500);
+                    const messages = ["WAUW! Wat een klik!", "BLIJF KLIKKEN VOOR MEER!", "CHAOS CONTROLE!", "HALLO WERELD!"];
+                    const message = messages[Math.floor(Math.random() * messages.length)];
+                    randomOutput.innerHTML = `<div class="text-content text-4xl font-extrabold text-${getRandomColor()}-400">${message}</div>`;
+                    button.textContent = message.split(' ')[0];
                 }
             },
+            // Happy Fortune Cookie
             {
-                name: "Font Swap",
+                name: "Happy Fortune",
                 action: () => {
-                    const fonts = ['font-comic', 'font-mono-special', 'font-handjet'];
-                    const randomFont = fonts[Math.floor(Math.random() * fonts.length)];
-                    
-                    body.classList.remove('font-inter', 'font-comic', 'font-mono-special', 'font-handjet');
-                    body.classList.add(randomFont);
-
-                    setTimeout(() => {
-                        body.classList.remove(randomFont);
-                        body.classList.add('font-inter');
-                    }, 1000);
+                    const fortunes = ["Jouw dag wordt net zo kleurrijk als deze knop.", "Een onverwachte traktatie wacht op je.", "Je hebt zojuist de hoogste score in chaos gehaald!"];
+                    const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+                    randomOutput.innerHTML = `<div class="text-content text-2xl italic font-sans text-green-400">"${fortune}"</div>`;
+                    randomOutput.style.backgroundColor = '#071e07'; 
                 }
             },
+            // Knop Spin
             {
-                name: "Quick Bounce",
+                name: "Knop Spin",
                 action: () => {
-                    button.style.transform = 'translateY(-10px)';
-                    setTimeout(() => {
-                        button.style.transform = 'translateY(0)';
-                    }, 100);
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold text-yellow-400">🌀 SPIN ME RECHTS OM!</div>`;
+                    button.classList.add('fast-spin');
+                    setTimeout(() => { button.classList.remove('fast-spin'); }, 500); 
                 }
             },
-
-            // Nieuwe Visuele/Annoying Gebeurtenissen
+            // Knop Kleur
             {
-                name: "Random Pulsing Border",
+                name: "Knop Kleurverschuiving",
                 action: () => {
-                    const color = getRandomColor();
-                    mainContainer.style.setProperty('--border-color', color);
-                    mainContainer.classList.add('pulsing-border');
-
-                    setTimeout(() => {
-                         mainContainer.classList.remove('pulsing-border');
-                         mainContainer.style.removeProperty('--border-color');
-                    }, 1500);
+                    const color = getRandomColor(); 
+                    button.style.backgroundColor = color;
+                    button.style.color = (Math.random() > 0.5 ? 'white' : 'black');
+                    randomOutput.innerHTML = `<div class="text-content text-xl font-bold" style="color: ${color}">NIEUWE KLEUR ONTGRENDELD!</div>`;
                 }
             },
+            // Willekeurige Emoji's (vrolijk)
             {
-                name: "Text Shadow Jiggle",
+                name: "Vrolijke Emoji's",
                 action: () => {
-                    const color1 = getRandomColor();
-                    const color2 = getRandomColor();
-                    mainTitle.style.textShadow = `3px 3px 0 ${color1}, -3px -3px 0 ${color2}`;
-
-                    setTimeout(() => {
-                        mainTitle.style.textShadow = 'none';
-                    }, 400);
-                }
-            },
-            {
-                name: "Scroll Lock",
-                action: () => {
-                    body.style.overflow = 'hidden';
-                    setTimeout(() => {
-                        body.style.overflow = 'auto';
-                    }, 2000); 
-                }
-            },
-            {
-                name: "Confetti Regen",
-                action: () => {
-                    spawnConfetti(50); 
-                }
-            },
-            // NIEUW: Haptic Trilling
-            {
-                name: "Haptic Vibrate",
-                action: () => {
-                    mainContainer.classList.add('haptic-vibrate');
-
-                    setTimeout(() => {
-                        mainContainer.classList.remove('haptic-vibrate');
-                    }, 200); 
+                    const emojis = ["🥳", "✨", "🌈", "🦄", "🚀", "🎉", "🍕", "🎈", "💖"];
+                    let emojiString = '';
+                    for (let i = 0; i < 5; i++) { emojiString += emojis[Math.floor(Math.random() * emojis.length)]; }
+                    randomOutput.innerHTML = `<div class="text-content text-5xl">${emojiString}</div>`;
+                    randomOutput.style.backgroundColor = '#0f1c1c'; 
                 }
             }
         ];
+        
+        const chaosVisualEvents = [
+            { name: "Noise Burst Chaos", action: () => { if (isAudioReady) { noiseChaos.triggerAttackRelease("16n"); } } },
+            { name: "Pluck Sound", action: () => { if (isAudioReady) { pluckSynth.triggerAttackRelease("C4", "8n"); } } },
+            { name: "Fast Vibrate", action: () => { mainContainer.classList.add('haptic-vibrate'); setTimeout(() => { mainContainer.classList.remove('haptic-vibrate'); }, 100); } },
+            { name: "Background Flash Yellow", action: () => { body.style.backgroundColor = '#facc15'; setTimeout(() => body.style.backgroundColor = '#0d0d0d', 50); } },
+            { name: "Confetti Regen", action: () => { spawnConfetti(20, false); } },
+        ];
+        
+        // ===============================================
+        // === 3. JOY EVENTS (NIEUW) ===
+        // ===============================================
+
+        const joyContentEvents = [
+            {
+                name: "Confetti Explosion",
+                action: () => {
+                    spawnConfetti(50, false);
+                    randomOutput.innerHTML = `<div class="text-content text-4xl font-extrabold text-green-400">🎉 FEEST! JE HEBT GEWONNEN! 🎉</div>`;
+                }
+            },
+            {
+                name: "Rainbow Text",
+                action: () => {
+                    const message = "WAT EEN GLIMLACH!";
+                    randomOutput.innerHTML = `<div class="text-content text-4xl font-extrabold text-white" style="text-shadow: 0 0 5px red, 0 0 5px orange, 0 0 5px yellow, 0 0 5px green, 0 0 5px blue, 0 0 5px indigo, 0 0 5px violet;">${message}</div>`;
+                    if (isAudioReady) { polySynth.triggerAttackRelease(["C4", "E4", "G4"], "8n"); }
+                }
+            },
+            {
+                name: "Happy Chime",
+                action: () => {
+                    chimeSynth.triggerAttackRelease("G5", "16n");
+                    randomOutput.innerHTML = `<div class="text-content text-2xl font-bold text-teal-400">DING! JE BENT GEZEGEND!</div>`;
+                }
+            },
+            {
+                name: "Cursor Happy Trail",
+                action: () => {
+                    startCursorTrail(3000, false);
+                }
+            },
+            {
+                name: "Knop Groei",
+                action: () => {
+                    button.style.transform = 'scale(1.2)';
+                    button.style.boxShadow = '0 0 30px #34d399';
+                    randomOutput.innerHTML = `<div class="text-content text-2xl font-bold text-emerald-400">DE KNOP HOUDT VAN JE!</div>`;
+                }
+            }
+        ];
+
+        const joyVisualEvents = [
+            { name: "Background Flash Green", action: () => { body.style.backgroundColor = '#10b981'; setTimeout(() => body.style.backgroundColor = '#0d0d0d', 100); } },
+            { name: "Chime High", action: () => { if (isAudioReady) { chimeSynth.triggerAttackRelease("C6", "32n"); } } },
+            { name: "Major Chord", action: () => { if (isAudioReady) { polySynth.triggerAttackRelease(["D5", "F#5", "A5"], "8n"); } } },
+            { name: "Bright Pulsing Border", action: () => { mainContainer.style.setProperty('--border-color', '#34d399'); mainContainer.classList.add('pulsing-border'); setTimeout(() => { mainContainer.classList.remove('pulsing-border'); mainContainer.style.removeProperty('--border-color'); }, 500); } },
+            { name: "Small Confetti Burst", action: () => { spawnConfetti(10, false); } },
+        ];
+
 
         // === Event Listener ===
         button.addEventListener('click', () => {
@@ -679,26 +620,69 @@
             
             if (button.disabled) return; 
 
+            // Verhoog de score en update de display
+            clickCount++;
+            clickCounterDisplay.textContent = `Klikken: ${clickCount}`;
+            
             // 1. Reset tijdelijke visuele elementen
             resetVisuals();
             
             // 2. Wis vorige willekeurige content
             clearContent();
 
-            // 3. Bepaal hoeveel visuele gebeurtenissen zullen plaatsvinden (1 tot 3 gebeurtenissen)
-            const numVisualEvents = Math.floor(Math.random() * 3) + 1; 
+            // 3. Kies de modus: 40% Horror, 40% Chaos, 20% Joy
+            const modeChance = Math.random();
+            let isHorrorMode = false;
+            let isChaosMode = false;
+            let isJoyMode = false;
+
+            if (modeChance < 0.4) { // 0% - 40%
+                isHorrorMode = true;
+            } else if (modeChance < 0.8) { // 40% - 80%
+                isChaosMode = true;
+            } else { // 80% - 100%
+                isJoyMode = true;
+            }
             
-            // 4. Voer de visuele/audio chaos uit
+            let currentContentEvents;
+            let currentVisualEvents;
+            let modeName;
+            let titleColorClass;
+
+            if (isHorrorMode) {
+                currentContentEvents = horrorContentEvents;
+                currentVisualEvents = horrorVisualEvents;
+                modeName = 'HORROR MODE';
+                titleColorClass = 'text-red-500/80';
+            } else if (isChaosMode) {
+                currentContentEvents = chaosContentEvents;
+                currentVisualEvents = chaosVisualEvents;
+                modeName = 'CHAOS MODE';
+                titleColorClass = 'text-yellow-400';
+            } else if (isJoyMode) {
+                currentContentEvents = joyContentEvents;
+                currentVisualEvents = joyVisualEvents;
+                modeName = 'JOY MODE';
+                titleColorClass = 'text-green-400';
+            }
+            
+            mainTitle.textContent = `${defaultTitleText} - ${modeName}`;
+            mainTitle.classList.add(titleColorClass);
+            
+            // 4. Bepaal hoeveel visuele gebeurtenissen zullen plaatsvinden (2 tot 4 gebeurtenissen voor meer impact)
+            const numVisualEvents = Math.floor(Math.random() * 3) + 2; 
+            
+            // 5. Voer de visuele/audio chaos uit
             for (let i = 0; i < numVisualEvents; i++) {
-                const randomIndex = Math.floor(Math.random() * visualEvents.length);
-                visualEvents[randomIndex].action(); 
+                const randomIndex = Math.floor(Math.random() * currentVisualEvents.length);
+                currentVisualEvents[randomIndex].action(); 
             }
 
-            // 5. Voer altijd ÉÉN content/interactieve gebeurtenis uit
-            const contentIndex = Math.floor(Math.random() * contentEvents.length);
-            contentEvents[contentIndex].action();
+            // 6. Voer altijd ÉÉN content/interactieve gebeurtenis uit
+            const contentIndex = Math.floor(Math.random() * currentContentEvents.length);
+            currentContentEvents[contentIndex].action();
             
-            // 6. Voeg een kleine tijdelijke vergrendeling toe
+            // 7. Voeg een kleine tijdelijke vergrendeling toe
             button.disabled = true;
             setTimeout(() => {
                 button.disabled = false;
